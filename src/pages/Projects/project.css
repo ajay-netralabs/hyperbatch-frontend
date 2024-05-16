@@ -1,0 +1,105 @@
+.project-container{
+    width: 100%;
+    float: right;
+    margin-top: 50px;
+    transition: all .24s ease-in-out;
+    padding: 2rem 2rem 0;
+    position: relative;
+    min-height: calc(100vh - 80px);
+    /* background: #fff; */
+    float: right;
+    z-index: 1;
+
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+}
+
+.sidenav-open {
+    width: calc(100% - 190px);
+}
+
+.project {
+    background-color: oklch(var(--b1));
+    border: 1px solid grey;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.table-holder {
+    position: relative;
+    border-radius: 10px;
+    margin-top: 30px;
+  }
+
+.table {
+    width: 100%;
+    height: 70vh;
+    /* border: 1px solid grey; */
+    /* border-collapse: collapse;
+    border-spacing: 20px 30px; */
+    border-radius: 0px !important;
+    overflow: hidden;
+    color: #464646;
+    background-color: #eff9fb;
+  }
+
+.table-heading {
+    display: flex;
+    align-self: center;
+    justify-content: space-between;
+    padding: 15px 30px;
+    font-weight: bold;
+    font-size: 14px;
+    border-top: none;
+    border-bottom: 1px solid rgba(227, 230, 237, 1);
+    align-items: center;
+  }
+
+.table-body {
+    display: flex;
+    padding: 0;
+    max-height: 70vh;
+    flex-direction: column;
+    overflow: overlay;
+
+    &::-webkit-scrollbar {
+      width: 7px;
+    }
+    &::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+      border-radius: 7px;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+      background-color: #555;
+    }
+  }
+  .table-data {
+    justify-content: space-between;
+    display: flex;
+    text-wrap: nowrap;
+    padding: 10px 30px;
+    border-bottom: 1px solid rgba(227, 230, 237, 1);
+    font-size: 14px;
+    height: 60px;
+
+    div {
+      padding: 5px 0;
+      /* text-align: center;  */
+      width: 100%; 
+    }
+    align-items: center;
+  }
+
+
+  /* .table {
+    display: flex !important;
+    flex-direction: column;
+  } */
+
+  /* td {
+    height: 20px;
+  } */

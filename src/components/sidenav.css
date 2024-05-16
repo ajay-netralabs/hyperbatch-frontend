@@ -1,0 +1,44 @@
+.sidenav {
+    position: fixed;
+    left: -12%;
+    top: 65px;
+    transition: all .24s ease-in-out;
+    border-left: 1px solid okclh(var(--bc));
+    color: #535b73;
+}
+
+.open {
+    left: 0;
+    transition: all .24s ease-in-out;
+}
+
+
+/* default shoud be hidden */
+.submenu {
+    position: fixed;
+    /* z-index: 2; */
+    left: -20%; 
+    transition: all .24s ease-in-out;
+    margin-top: 5px;
+    /* top: calc(7% + 5px); */
+}
+
+.submenu-open {
+    left: calc(11% - 15px);
+}
+
+.submenu-item:hover{
+    cursor: pointer;
+    background-color: #f6f7fb ;
+    color: oklch(var(--p));
+}
+
+.active {
+    background-color: #f6f7fb ;
+    color: oklch(var(--p));
+}
+
+.menu-item:hover{
+    background-color: #f6f7fb ;
+    color: oklch(var(--p));
+}

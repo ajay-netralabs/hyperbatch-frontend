@@ -1,0 +1,8 @@
+.navbar{
+    border-bottom: 1px solid #d3d4d7;
+    position: fixed;
+}
+
+.logo-text {
+    color: #535b73 !important;
+}
