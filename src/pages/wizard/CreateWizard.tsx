@@ -1,7 +1,7 @@
-import { EditorState, Modifier, convertToRaw, ContentState } from "draft-js";
+import { EditorState, convertToRaw, ContentState } from "draft-js";
 import { useState, ChangeEvent, useEffect } from "react";
 import { InputText, TextArea, Button, Select } from "../../components/form";
-import { SideNav, TextEditor } from "../../components/index";
+import { TextEditor } from "../../components/index";
 
 import "./wizard.css"
 import { useDispatch, useSelector } from "react-redux";

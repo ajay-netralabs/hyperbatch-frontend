@@ -1,5 +1,4 @@
 import { MdSpaceDashboard } from "react-icons/md";
-import { FaHatWizard } from "react-icons/fa";
 import "./sidenav.css"
 import { useSelector } from "react-redux";
 import { Submenu } from "./Submenu";
@@ -16,17 +15,6 @@ import { RiQrScanFill } from "react-icons/ri";
 import { FaBoxArchive } from "react-icons/fa6";
 
 import { ImBoxAdd } from "react-icons/im";
-
-// const wizardSubmenu = [
-//     {
-//         icon : FaHatWizard,
-//         name : "Home"
-//     },
-//     {
-//         icon : FaHatWizard,
-//         name : "Create"
-//     }
-// ]
 
 const projectSubmenu =  [
     {
@@ -61,43 +49,11 @@ const variableSubmenu = [
     }
 ]
 
-// interface sm{
-//     [key: string]: submenu;
-// }
-
-// type submenukey = "wizard" | "dashboard" | "none"
-
-// const SUBMENU: {[key in submenukey]: submenu[]} = {
-//     wizard : [{
-//         icon : FaHatWizard,
-//         name : "Home"
-//     },
-//     {
-//         icon : FaHatWizard,
-//         name : "Create"
-//     }
-//     ],
-//     dashboard: [
-//         {
-//             icon : FaHatWizard,
-//             name : "Home"
-//         }
-//     ],
-//     none: []
-// } 
-
-
-interface submenu {
-    icon: any,
-    name: string
-}
 
 
 export const SideNav = () => {
     const navigate = useNavigate()
     const open = useSelector((state: any) => state.sidebar.open)
-
-    const [hover, sethover] = useState("")
 
     const [activeMenu, setActiveMenu] = useState("")
 
@@ -122,21 +78,6 @@ export const SideNav = () => {
       }
     }
 
-    
-    const links:any = {
-        dasboard : "/",
-        settings : "/settings",
-        performance : "/performane"
-    }
-
-    // const setHoverItem = (name:string) => {
-    //     setActiveMenu(name)
-    //     setActiveSubmenu(name)
-
-    //     if(links[name]){
-    //         navigate(links[name])
-    //     }
-    // }
 
     const sublist:any = {
         "Projects" : "/projects",
@@ -164,7 +105,7 @@ export const SideNav = () => {
             {/* <div className="divider mt-0 mb-0"></div>  */}
             <hr />
             <div className={`menu-item flex items-center px-5 py-5 hover:cursor-pointer ${activeMenu === "projects" ? "active" : ""}`} onClick={() => calculateOpenMenu("projects")}>
-                <FiLayers color={`${hover === "projects" ? "#036da1" : "black" }`} fontSize="16px"/>
+                <FiLayers color={`${activeMenu === "projects" ? "#036da1" : "black" }`} fontSize="16px"/>
                 <span className="ml-2  font-semibold text-xs">Projects</span>
             </div>
             {openMenu.includes("projects") ? (

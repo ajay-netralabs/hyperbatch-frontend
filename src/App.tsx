@@ -1,9 +1,5 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import { useSelector } from 'react-redux'
-import { NavBar, SideNav } from './components'
+import './App.css'
 
 // Import styles of packages that you've installed.
 // All packages except `@mantine/hooks` require styles imports
@@ -22,13 +18,9 @@ import { Protected } from './components/Auth/Protected'
 
 function App() {
 
-  const open = useSelector((state: any) => state.sidebar.open)
-
   return (
     <MantineProvider>
     <>
-        {/* <NavBar />
-        <SideNav /> */}
           <ToastContainer position="top-center"
               autoClose={2000}
               hideProgressBar={true}

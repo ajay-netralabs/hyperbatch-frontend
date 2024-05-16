@@ -1,11 +1,4 @@
-/**
- * list {
- *      icon : component,
- *      text : text
- *  }
- */
 
-import { useState } from "react"
 import "./sidenav.css"
 
 interface props {

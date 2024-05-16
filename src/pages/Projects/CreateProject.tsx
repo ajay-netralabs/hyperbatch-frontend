@@ -6,7 +6,7 @@ import { IoMdRefresh } from "react-icons/io";
 import { InputText, TextArea, Select, Button } from "../../components/form"
 import { useEffect, useState } from "react";
 import { getAwsDirs, createProject, updateProject, getAllProjects } from "../../services/ApiServices";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { addCurrentProject } from "../../store/slices/currentResources";
 import { addOne, addProject, updateOne } from "../../store/slices/project.slice";
