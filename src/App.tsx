@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux'
 import './App.css'
 
 // Import styles of packages that you've installed.
