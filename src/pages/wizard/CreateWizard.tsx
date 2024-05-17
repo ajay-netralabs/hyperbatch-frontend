@@ -678,7 +678,7 @@ export const CreateWizard = () => {
         
         if(step === 3) {
             // return <TextEditor editorState={hyperbatchCode} setEditorState={setHyperbatchCode} styleClasses="h-[40vh]"/>
-            return <CodeEditor value={wizardDetails.hyperBatchResp} onChange={(e) => setHyperbatchCode(e.target.value)}  language="python" padding={15}
+            return <CodeEditor value={wizardDetails.hyperBatchResp} onChange={(e) => setHyperbatchCode(e.target.value)}  language="sql" padding={15}
                     style={{
                         overflowY: "scroll",
                         height: "40vh",
@@ -692,7 +692,7 @@ export const CreateWizard = () => {
 
         if(step === 4) {
             // return <TextEditor editorState={refinedHyperbatchCode} setEditorState={setRefinedHyperbatchCode} styleClasses="h-[40vh]"/>
-            return <CodeEditor value={wizardDetails.refinedHyperBatchResp} onChange={(e) => setRefinedHyperbatchCode(e.target.value)}  language="python" padding={15}
+            return <CodeEditor value={wizardDetails.refinedHyperBatchResp} onChange={(e) => setRefinedHyperbatchCode(e.target.value)}  language="sql" padding={15}
                     style={{
                         overflowY: "scroll",
                         height: "40vh",
@@ -705,7 +705,7 @@ export const CreateWizard = () => {
 
         if(step === 5) {
             // return <TextEditor editorState={refinedHyperbatchCode} setEditorState={setRefinedHyperbatchCode} styleClasses="h-[40vh]"/>
-            return <CodeEditor value={wizardDetails.finalCodeResp} onChange={(e) => setFinalCode(e.target.value)}  language="python" padding={15}
+            return <CodeEditor value={wizardDetails.finalCodeResp} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
                     style={{
                         overflowY: "scroll",
                         height: "40vh",
@@ -754,11 +754,11 @@ export const CreateWizard = () => {
                 </div>
                 <div className="wizard-conatiner">
                     <ul className="steps w-full mx-auto">
-                        <li className={`step text-xs ${step > 0 ? "step-primary" : ""}`}><span className="hover:cursor-pointer"  title="This step will generate business logic">Step 1</span></li>
-                        <li className={`step text-xs ${step > 1 ? "step-primary" : ""}`}><span className="hover:cursor-pointer"  title="This step will generate  program summary">Step 2</span></li>
-                        <li className={`step ${step > 2 ? "step-primary" : ""}`}><span className="hover:cursor-pointer" title="This step will generate  hyperbatch code">Step 3</span></li>
-                        <li className={`step ${step > 3 ? "step-primary" : ""}`}><span className="hover:cursor-pointer" title="This step will generate  refined hyperbatch code">Step 4</span></li>
-                        <li className={`step ${step > 4 ? "step-primary" : ""}`}><span className="hover:cursor-pointer" title="This step will generate  the final output">Step 5</span></li>
+                        <li className={`step text-xs ${step > 0 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 1 (Business Rules Generation)`}</span></li>
+                        <li className={`step text-xs ${step > 1 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 2 (Data Processing Summary)`}</span></li>
+                        <li className={`step text-xs ${step > 2 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 3 (First HB Code)`}</span></li>
+                        <li className={`step text-xs ${step > 3 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 4 (Refined HB Code)`}</span></li>
+                        <li className={`step text-xs ${step > 4 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 5 (Final HB Code)`}</span></li>
                     </ul>
                   
                     {loadingApiRequest ? (
@@ -766,7 +766,8 @@ export const CreateWizard = () => {
                             <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
                         </div>
                     ) :  (
-                        <div className="border bg-base-100 mt-2">
+                        <div className="border bg-base-100 mt-4">
+                            <div className="w-tc-editor-var"> </div>
                             {getWizardComponent(step)}
                         </div>
                         )}    

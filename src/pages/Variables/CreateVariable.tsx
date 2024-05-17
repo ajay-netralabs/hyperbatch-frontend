@@ -24,7 +24,7 @@ export const CreateVariable = () => {
             name : "",
             description : "",
             variables : [
-                { name:"Cobol Rule" , var: "business_rule", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""}, /* aws - filepath, upload -  */
+                { name:"Cobol Rules" , var: "business_rule", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""}, /* aws - filepath, upload -  */
                 { name:"Hyperbatch Rules" , var: "hyperbatch_code_rule", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""},
                 { name:"Program summary example" , var: "program_summary_example", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""},
                 { name:"Code correction instructions" , var: "Code_correction_instructions", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""},
