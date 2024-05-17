@@ -17,7 +17,7 @@ export const TextArea = ({label, value, changeFn, placeholder, styleClass, disab
              </div>
 
             ) : null}
-            <textarea  disabled={disabled} value={value} placeholder={placeholder} className={`textarea textarea-bordered textarea-lg w-full resize-none px-[1rem] text-xs ${styleClass}`} onChange={changeFn} ></textarea>
+            <textarea  disabled={disabled} value={value} placeholder={placeholder} className={`textarea textarea-bordered textarea-lg w-full resize-none px-[0.75rem] text-xs ${styleClass}`} onChange={changeFn} ></textarea>
         </label>
     )
 }
