@@ -38,10 +38,8 @@ export const Login = () => {
        
         try{
             const res:any = await loginUser(cred.email, cred.password)
-            console.log("res", res)
             const jsonResp = await res.json()
     
-            console.log("jsonResp", jsonResp)
             if(jsonResp.error){
                 toast(jsonResp.message)
                 setLoading(false)

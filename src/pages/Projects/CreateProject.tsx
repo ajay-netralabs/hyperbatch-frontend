@@ -383,7 +383,7 @@ export const CreateProject = () => {
                                          <div className="flex gap-4 mt-4">
                                         <Select placeholder="Select Folder" value={projectData.folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => handleFilePath(e, "folder")} />
                                         <Select placeholder="Select File" value={projectData.file || null} options={getFileName(selectedFolder || projectData.folder)} changeFn={(e:any) => handleFilePath(e, "file")} />
-                                        <Button variant="primary" size="sm" styleClasses="" clickFn={fetchAwsDir}>
+                                        <Button variant="primary" size="sm" styleClasses="!h-fit" clickFn={fetchAwsDir}>
                                             <div className={`${awsLoading ? "animate-spin" : ""}`}>
                                                 <IoMdRefresh color="white"/>
                                             </div>

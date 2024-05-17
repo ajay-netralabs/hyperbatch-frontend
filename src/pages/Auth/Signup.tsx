@@ -46,18 +46,23 @@ export const Signup = () => {
         }
 
         setLoading(true)
-        const res = await registerUser(cred.name, cred.email, cred.password)
-        const jsonResp = await res?.json()
-
-        if(jsonResp.error){
-            toast(jsonResp.message)
+        try{
+            const res = await registerUser(cred.name, cred.email, cred.password)
+            const jsonResp = await res?.json()
+    
+            if(jsonResp.error){
+                toast(jsonResp.message)
+                setLoading(false)
+                return
+            }
+    
+            toast("Account created sucessfully, please login")
             setLoading(false)
-            return
+            navigate("/login")
+        }catch(err){
+            toast("Something went wrong")
+            setLoading(false)
         }
-
-        toast("Account created sucessfully, please login")
-        setLoading(false)
-        navigate("/login")
 
     }
 

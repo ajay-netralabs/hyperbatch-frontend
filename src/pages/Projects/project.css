@@ -16,7 +16,7 @@
 }
 
 .sidenav-open {
-    width: calc(100% - 190px);
+    width: calc(100% - 12%);
 }
 
 .project {

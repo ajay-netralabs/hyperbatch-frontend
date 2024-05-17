@@ -754,11 +754,11 @@ export const CreateWizard = () => {
                 </div>
                 <div className="wizard-conatiner">
                     <ul className="steps w-full mx-auto">
-                        <li title="This step will generate business logic based on the cobol file" className={`step hover:cursor-pointer text-xs ${step > 0 ? "step-primary" : ""}`}>Step 1</li>
-                        <li title="This step will generate  program summary" className={`step  hover:cursor-pointer text-xs ${step > 1 ? "step-primary" : ""}`}>Step 2</li>
-                        <li title="This step will generate  hyperbatch code" className={`step hover:cursor-pointer text-xs ${step > 2 ? "step-primary" : ""}`}>Step 3</li>
-                        <li title="This step will generate  refined hyperbatch code" className={`step hover:cursor-pointer text-xs ${step > 3 ? "step-primary" : ""}`}>Step 4</li>
-                        <li title="This step will generate  the final output" className={`step hover:cursor-pointer text-xs ${step > 4 ? "step-primary" : ""}`}>Step 5</li>
+                        <li className={`step text-xs ${step > 0 ? "step-primary" : ""}`}><span className="hover:cursor-pointer"  title="This step will generate business logic">Step 1</span></li>
+                        <li className={`step text-xs ${step > 1 ? "step-primary" : ""}`}><span className="hover:cursor-pointer"  title="This step will generate  program summary">Step 2</span></li>
+                        <li className={`step ${step > 2 ? "step-primary" : ""}`}><span className="hover:cursor-pointer" title="This step will generate  hyperbatch code">Step 3</span></li>
+                        <li className={`step ${step > 3 ? "step-primary" : ""}`}><span className="hover:cursor-pointer" title="This step will generate  refined hyperbatch code">Step 4</span></li>
+                        <li className={`step ${step > 4 ? "step-primary" : ""}`}><span className="hover:cursor-pointer" title="This step will generate  the final output">Step 5</span></li>
                     </ul>
                   
                     {loadingApiRequest ? (

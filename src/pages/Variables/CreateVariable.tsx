@@ -24,8 +24,8 @@ export const CreateVariable = () => {
             name : "",
             description : "",
             variables : [
-                { name:"Business rule" , var: "business_rule", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""}, /* aws - filepath, upload -  */
-                { name:"Hyperbatch code rule" , var: "hyperbatch_code_rule", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""},
+                { name:"Cobol Rule" , var: "business_rule", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""}, /* aws - filepath, upload -  */
+                { name:"Hyperbatch Rules" , var: "hyperbatch_code_rule", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""},
                 { name:"Program summary example" , var: "program_summary_example", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""},
                 { name:"Code correction instructions" , var: "Code_correction_instructions", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""},
                 { name:"Incorrect sql code example" , var: "Incorrect_sql_code_example", type: "", content: "" , folder: "", file: "", fileName:"", fileByte: ""},
@@ -306,25 +306,25 @@ export const CreateVariable = () => {
                                 <p className="font-semibold">Variables</p>
                                 {variableData.variables.map((varData: any, i:number) => (
                                     <div className="flex items-center mt-4" key={i}>
-                                        <p className="w-[20%]">{varData.name}</p>
+                                        <p className="w-[20%] text-xs">{varData.name}</p>
                                         <Select styleClass="!w-[40%]" placeholder="Select variable type" options={variableOptions} changeFn={(e:any) => handleVariableChange(e, varData.var)}/>
                                         {varData.type === "aws" ? (
                                             <div className="aws-container flex justify-evenly items-center w-[40%]">
                                                 <Select styleClass="!w-[40%]" placeholder="Select Folder" value={varData.folder} options={getFileCount(awsDir)} changeFn={(e:any) => handleFilePath(e, "folder", varData.var) }/>
                                                 <Select styleClass="!w-[40%]" placeholder="Select File" value={varData.file} options={getFileName(varData.folder)} changeFn={(e:any) => handleFilePath(e,"file", varData.var)}/>
                                             
-                                                <Button variant="primary" size="sm" clickFn={fetchAwsDir}>
+                                                <Button variant="primary" size="sm" styleClasses="!h-fit" clickFn={fetchAwsDir}>
                                                     <div className={`${awsLoading ? "animate-spin" : ""}`}>
                                                         <IoMdRefresh color="white"/>
                                                     </div>
                                                 </Button>
-                                            
+
                                             </div>
                                         ): null}
 
                                         {varData.type === "upload" ? (
                                             <div className="upload-container flex justify-evenly items-center w-[40%]">
-                                                <input type="file" accept="txt" className="file-input file-input-sm file-input-primary file-input-bordered w-[94%]" onChange={(e:any) => handleFileUpload(e, varData.var)} />
+                                                <input style={{margin: "0 4%"}} type="file" accept="txt" className="file-input file-input-sm file-input-primary file-input-bordered w-full" onChange={(e:any) => handleFileUpload(e, varData.var)} />
                                             </div>
                                         ) : null}
                                     </div>
