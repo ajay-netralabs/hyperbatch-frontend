@@ -14,6 +14,9 @@ import { addOne, addProject, updateOne } from "../../store/slices/project.slice"
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { toBase64 } from "../../services/utils";
 import Cookies from 'universal-cookie';
+import { addFetch } from "../../store/slices/fetchedResources";
+
+
 export const CreateProject = () => {
 
     const dispatch = useDispatch()
@@ -24,6 +27,8 @@ export const CreateProject = () => {
     const allProjects = useSelector((state:any) => state.projects.projects)
     const selectedProjectId = useSelector((state: any) => state.selectedResource.projectId)
     const selectedProject = allProjects.find((project:any) => project.project_id === selectedProjectId)
+
+    const alreadyFetchedProjects = useSelector((state:any) => state.fetchedResources.projects)
 
     // const [forceFetch, setForceFetch] = useState(false)
     const cookies = new Cookies(null, { path: '/' });
@@ -79,13 +84,14 @@ export const CreateProject = () => {
                     // }));
                     //@ts-ignore
                     dispatch(addProject(AllProjects));
+                    dispatch(addFetch("projects"))
                 } 
             } catch (error) {
                
             }
         };
 
-        if(!allProjects.length){
+        if(!allProjects.length && !alreadyFetchedProjects){
             fetchProjects()
         }
     },[])
@@ -368,7 +374,7 @@ export const CreateProject = () => {
                 {!loading ? (
                     <div className="w-full">
                         <p className="font-semibold">Create Project</p>
-                        <div className="w-full flex flex-col gap-4">
+                        <div className="w-full flex flex-col gap-2">
                             <InputText  placeholder="Enter project name" styleClass="mt-4 input-sm" value={projectData.name} changeFn={(e:any) => {handleInputChange(e, "name")}} />
                             <TextArea placeholder="Project description" styleClass="mt-4 textarea-sm" value={projectData.description} changeFn={(e:any) => {handleInputChange(e, "description")}} />
                             <Select placeholder="Select file type" styleClass="mt-4" value={projectData.file_type || null} options={FileOptions} changeFn={(e:any) => {handleInputChange(e, "file_type")}} />

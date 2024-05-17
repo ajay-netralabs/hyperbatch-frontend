@@ -296,9 +296,10 @@ export const CreateVariable = () => {
 
     return (
         <div className={`project-container flex justify-center ${open ? "sidenav-open" : ""}`}>
-            <div className="w-[95%]">
+        {!loading ? (
+            <div className="w-full">
                         <p className="font-semibold">Create Variable</p>
-                        <div className="w-full flex flex-col gap-4">
+                        <div className="w-full flex flex-col gap-2">
                             <InputText  placeholder="Enter variable name" styleClass="mt-4 input-sm" value={variableData.name} changeFn={(e:any) => {handleInputChange(e, "name")}} />
                             <TextArea placeholder="Variable description" styleClass="mt-4 textarea-sm" value={variableData.description} changeFn={(e:any) => {handleInputChange(e, "description")}} />
                             <div className="mt-5">
@@ -313,9 +314,9 @@ export const CreateVariable = () => {
                                                 <Select styleClass="!w-[40%]" placeholder="Select File" value={varData.file} options={getFileName(varData.folder)} changeFn={(e:any) => handleFilePath(e,"file", varData.var)}/>
                                             
                                                 <Button variant="primary" size="sm" clickFn={fetchAwsDir}>
-                                                     <div className={`${awsLoading ? "animate-spin" : ""}`}>
+                                                    <div className={`${awsLoading ? "animate-spin" : ""}`}>
                                                         <IoMdRefresh color="white"/>
-                                                     </div>
+                                                    </div>
                                                 </Button>
                                             
                                             </div>
@@ -331,11 +332,16 @@ export const CreateVariable = () => {
                             </div>
                             <div className="w-[30%] flex mt-3 items-center">
                                 <Button variant="primary" size="sm" styleClasses={` !text-xs ${loading ? "btn-disabled" : ""}`} clickFn={handleCreateVariable}>Create</Button>
-                                {loading ?  <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin ml-4"/> : null}
+                                {/* {loading ?  <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin ml-4"/> : null} */}
                             {/* {selectedProject ? (<Button variant="primary" size="md"  styleClasses={`ml-2 ${loading ? "btn-disabled" : ""}`} clickFn={handleUpdateProject}>Update Project</Button>): (<Button variant="primary" size="md" styleClasses={`ml-2 ${loading ? "btn-disabled" : ""}`} clickFn={handleCreateProject}>Create Project</Button>)} */}
                             </div>
                         </div>
-                    </div>
-        </div>
+            </div>
+        ) : (
+            <div className="flex justify-center items-center">
+                <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+            </div>
+        )}
+    </div>
     )
 }

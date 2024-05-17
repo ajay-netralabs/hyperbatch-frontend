@@ -12,6 +12,9 @@ import { deleteData, getAllVariables } from "../../services/ApiServices";
 import { deleteVariable, addVariable } from "../../store/slices/variables.slice";
 import Cookies from 'universal-cookie';
 
+import { addFetch } from "../../store/slices/fetchedResources";
+
+
 export const VariableHome = () => {
     const cookies = new Cookies(null, { path: '/' });
     const token = cookies.get("session_id")
@@ -20,6 +23,9 @@ export const VariableHome = () => {
     const variables = useSelector((state : any) => state.variables.variables)
     const dispatch = useDispatch(); 
     const [loading, setLoading] = useState(false)
+
+    const alreadyFetchedVariables = useSelector((state:any) => state.fetchedResources.variables)
+
 // @ts-ignore
     const fetchVariables = async () => {
         try {
@@ -27,6 +33,7 @@ export const VariableHome = () => {
             const AllVariables = await getAllVariables(token); 
             if (Array.isArray(AllVariables)) {
                 dispatch(addVariable(AllVariables));
+                dispatch(addFetch("variables"))
             } else {
                 toast.error(AllVariables.message || "Unexpected error occurred.");
             }
@@ -39,7 +46,7 @@ export const VariableHome = () => {
     };
 
     useEffect(() => {
-        if(!variables.length) fetchVariables();
+        if(!variables.length && !alreadyFetchedVariables) fetchVariables();
      }, []);
 
     const handleDeleteVariable = async (var_id: string) => {

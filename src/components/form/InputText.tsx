@@ -8,10 +8,12 @@ interface props {
     changeFn : any,
     label? : string,
     placeholder? : string,
-    styleClass?: string
+    styleClass?: string,
+    disabled?: boolean,
+    labelClass?: string,
 }
 
-export const InputText = ({type = "text",value, changeFn, label, placeholder, styleClass} : props) => {
+export const InputText = ({type = "text",value, changeFn, label, placeholder, styleClass, disabled = false, labelClass} : props) => {
     return (
         // <TextInput 
         //     label={label}
@@ -30,10 +32,10 @@ export const InputText = ({type = "text",value, changeFn, label, placeholder, st
         <label className="form-control w-full">
             {label ? (
              <div className="label">
-                <span className="label-text">{label}</span>
+                <span className={`label-text ${labelClass}`}>{label}</span>
             </div>
             ) : null}
-            <input type={type} placeholder={placeholder} className={`input input-bordered w-full !text-xs ${styleClass}`} value={value} onChange={changeFn}/>
+            <input disabled={disabled} type={type} placeholder={placeholder} className={`input input-bordered w-full !text-xs ${styleClass}`} value={value} onChange={changeFn}/>
         </label>
     )
 }

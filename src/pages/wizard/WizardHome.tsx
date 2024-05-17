@@ -15,6 +15,8 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 // import { IJob } from "../../store/slices/job.slice";
 import Cookies from 'universal-cookie';
+import { addFetch } from "../../store/slices/fetchedResources";
+
 const WizardHome = () => {
     const cookies = new Cookies(null, { path: '/' });
     const token = cookies.get("session_id")
@@ -24,6 +26,8 @@ const WizardHome = () => {
     const dispatch = useDispatch();
     // const [jobsCopy , setJobsCopy] = useState<IJob[]>([]);
     const [loading, setLoading] = useState(false)
+
+    const alreadyFetchedJobs = useSelector((state:any) => state.fetchedResources.jobs)
 
     // useEffect(() => {
     //     setJobsCopy(jobs)
@@ -37,6 +41,7 @@ const WizardHome = () => {
 
             if (Array.isArray(AllJobs)) {
                 dispatch(addJob(AllJobs));
+                dispatch(addFetch("jobs"))
             } else {
                 toast.error(AllJobs.message || "Unexpected error occurred.")
             }
@@ -49,7 +54,7 @@ const WizardHome = () => {
     };
 
     useEffect(() => {
-        if (!jobs.length) fetchProjects();
+        if (!jobs.length && !alreadyFetchedJobs) fetchProjects();
     }, []);
 
 

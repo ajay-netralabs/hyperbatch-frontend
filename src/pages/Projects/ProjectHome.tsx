@@ -12,6 +12,8 @@ import { addCurrentProject } from "../../store/slices/currentResources";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import Cookies from 'universal-cookie';
+import { addFetch } from "../../store/slices/fetchedResources";
+
  
 const ProjectHome = () => {
 
@@ -23,6 +25,7 @@ const ProjectHome = () => {
     const projects = useSelector((state : any) => state.projects.projects);
     const dispatch = useDispatch(); 
 
+    const alreadyFetchedProjects = useSelector((state:any) => state.fetchedResources.projects)
 
 
     const [loading, setLoading] = useState(false)
@@ -33,6 +36,7 @@ const ProjectHome = () => {
             const AllProjects = await getAllProjects(token); 
             if (Array.isArray(AllProjects)) {
                 dispatch(addProject(AllProjects));
+                dispatch(addFetch("projects"))
             } else {
                 toast.error(AllProjects.message || "Unexpected error occurred.");
             }
@@ -45,7 +49,7 @@ const ProjectHome = () => {
     };
 
     useEffect(() => {
-       if(!projects.length) fetchProjects();
+        if(!projects.length && !alreadyFetchedProjects) fetchProjects();
     }, []);
       
 

@@ -1,0 +1,4 @@
+.input[disabled], .textarea[disabled], .select[disabled] {
+    border-color: unset !important;
+    background-color: unset !important;
+}

@@ -1,12 +1,14 @@
 import { useState } from "react"
 import { Button, InputText } from "../../components/form"
 import { Link, useNavigate } from "react-router-dom"
-import { SidePanel } from "./SidePanel"
 import { loginUser } from "./authServices"
 import { toast } from "react-toastify"
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useDispatch } from "react-redux"
 import { login } from "../../store/slices/user.slice"
+
+import COBOLPROGRAM from "/cobol-programming.jpg"
+import "./side-panel.css"
 
 export const Login = () => {
 
@@ -33,49 +35,57 @@ export const Login = () => {
 
     const handleLogin = async () => {
         setLoading(true)
-        const res:any = await loginUser(cred.email, cred.password)
-        const jsonResp = await res.json()
-
-        if(jsonResp.error){
-            toast(jsonResp.message)
+       
+        try{
+            const res:any = await loginUser(cred.email, cred.password)
+            console.log("res", res)
+            const jsonResp = await res.json()
+    
+            console.log("jsonResp", jsonResp)
+            if(jsonResp.error){
+                toast(jsonResp.message)
+                setLoading(false)
+                return
+            }
+    
+            const {token} = jsonResp
+            document.cookie = token
+    
+            toast("Logged in successfully")
+            dispatch(login({id: jsonResp.message, email: cred.email}))
             setLoading(false)
-            return
+            // add user to redux store
+            navigate("/")
+            
+        }catch(err:any){
+            toast(err.message || "Couldn't logged you in")
         }
-
-        const {token} = jsonResp
-        document.cookie = token
-
-        toast("Logged in successfully")
-        dispatch(login({id: jsonResp.message, email: cred.email}))
-        setLoading(false)
-        // add user to redux store
-        navigate("/")
        
     }
 
     return (
         <div className="flex h-screen">
-            <div className="w-[50%] h-full">
-                <SidePanel />
-            </div>
-            <div className="w-[50%] flex flex-col justify-center items-center gap-4 mx-auto">
+        <div className="relative h-screen w-screen">
+            <div className="sidebar-overlay"></div>
+            <img className="h-screen w-screen" src={COBOLPROGRAM} />
+            <div className="auth-container w-[50%] z-10 flex flex-col justify-center items-center gap-4 mx-auto py-5">
 
             {
                     loading ? (
-                        <div className="h-screen mt-2 flex flex-col justify-center items-center">
+                        <div className="flex flex-col justify-center items-center">
                             <AiOutlineLoading3Quarters color="#036ca1" fontSize={"50px"} className="animate-spin"/>
-                            <p className="mt-2">Logging you in</p>
+                            <p className="mt-2 text-white">Logging you in</p>
                         </div>
                     ): (
                         <>
-                        <p className="font-semibold text-lg">Get Started</p>
+                        
                         <div className="flex flex-col w-[70%]">
-                            <InputText label="Email" value={cred.email} changeFn={(e:any) => handleInputChange(e,"email")}/>
-                            <InputText type="password" label="Password" value={cred.password} changeFn={(e:any) => handleInputChange(e,"password")}/>
+                            <InputText label="Email" value={cred.email} labelClass="text-white" changeFn={(e:any) => handleInputChange(e,"email")}/>
+                            <InputText type="password" label="Password" labelClass="text-white" value={cred.password} changeFn={(e:any) => handleInputChange(e,"password")}/>
                         </div>
                         <Button clickFn={handleLogin} styleClasses="btn-primary px-4">Sign in</Button>
                         <div className="flex flex-col items-center">
-                            <div className="flex"><p>Dont have an account?</p><Link className="ml-2 underline hover:text-primary" to="/signup">Sign up</Link></div>
+                            <div className="flex text-white"><p>Dont have an account?</p><Link className="ml-2 underline hover:text-primary" to="/signup">Sign up</Link></div>
                             {/* <p>or</p>
                             <div className="flex"><p>Forgot your password?</p><Link className="ml-2 underline hover:text-primary" to="/">Reset</Link></div> */}
                         </div>
@@ -84,5 +94,6 @@ export const Login = () => {
 
             </div>   
         </div>
+    </div>
     )
 }

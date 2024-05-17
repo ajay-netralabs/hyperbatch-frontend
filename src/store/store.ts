@@ -5,6 +5,7 @@ import jobsReducer from "./slices/job.slice"
 import currentResources from './slices/currentResources';
 import variableReducer from "./slices/variables.slice"
 import userReducer from "./slices/user.slice"
+import fetchedResources from './slices/fetchedResources';
 
 export const store = configureStore({
   reducer: {
@@ -13,7 +14,8 @@ export const store = configureStore({
     jobs: jobsReducer,
     selectedResource : currentResources,
     variables : variableReducer,
-    user: userReducer
+    user: userReducer,
+    fetchedResources : fetchedResources
   },
 })
 

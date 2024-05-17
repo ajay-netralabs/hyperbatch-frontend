@@ -4,10 +4,11 @@ interface props {
     changeFn : any,
     label? : string,
     placeholder : string,
-    styleClass?: string
+    styleClass?: string,
+    disabled?: boolean
 }
 
-export const TextArea = ({label, value, changeFn, placeholder, styleClass} : props) => {
+export const TextArea = ({label, value, changeFn, placeholder, styleClass, disabled = false} : props) => {
     return (
         <label className="form-control w-full">
             {label ? (
@@ -16,7 +17,7 @@ export const TextArea = ({label, value, changeFn, placeholder, styleClass} : pro
              </div>
 
             ) : null}
-            <textarea value={value} placeholder={placeholder} className={`textarea textarea-bordered textarea-lg w-full resize-none px-[1rem] text-xs ${styleClass}`} onChange={changeFn} ></textarea>
+            <textarea  disabled={disabled} value={value} placeholder={placeholder} className={`textarea textarea-bordered textarea-lg w-full resize-none px-[1rem] text-xs ${styleClass}`} onChange={changeFn} ></textarea>
         </label>
     )
 }

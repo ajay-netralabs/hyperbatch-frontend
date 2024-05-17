@@ -16,6 +16,7 @@ import { addJob, addOne, updateOne } from "../../store/slices/job.slice";
 
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { addVariable } from "../../store/slices/variables.slice";
+import { addFetch } from "../../store/slices/fetchedResources";
 
 // import { EditorState } from 'draft-js';
 import Cookies from 'universal-cookie';
@@ -33,6 +34,9 @@ export const CreateWizard = () => {
     const allProjects = useSelector((state:any) => state.projects.projects)
 
     const allvariables = useSelector((state:any) => state.variables.variables)
+
+    const alreadyFetched = useSelector((state:any) => state.fetchedResources)
+
 
     const [wizardDetails , setWizardDetails] = useState(() => {
         const currentDate = new Date().toLocaleDateString("en-US", { day: "numeric", month: "long", year: 'numeric' });
@@ -152,11 +156,13 @@ export const CreateWizard = () => {
             const variables = await getAllVariables(token)
             if(Array.isArray(variables)){
                 dispatch(addVariable(variables))
+                dispatch(addFetch("variables"))
+
             }
             setLoadingVariables(false)
         }
 
-        if(!allvariables.length){
+        if(!allvariables.length && !alreadyFetched.variables){
             fetchAllVariables()
         }
     }, [])
@@ -187,18 +193,19 @@ export const CreateWizard = () => {
     }, [])
 
     useEffect(() => {
-        const fetchProjects = async () => {
+        const fetchJobs = async () => {
             try {
                 const AllJobs = await getAllJobs(token); 
     
                 if (Array.isArray(AllJobs)) {
                     dispatch(addJob(AllJobs));
+                    dispatch(addFetch("jobs"))
                 }
             } catch (error) {
             }
         };
 
-        if(!allJobs.length) fetchProjects()
+        if(!allJobs.length && !alreadyFetched.jobs ) fetchJobs()
     }, [])
 
 
@@ -339,6 +346,12 @@ export const CreateWizard = () => {
 
                     if(!project){
                         toast("Please select a project")
+                        setStep(0)
+                        return
+                    }
+
+                    if(!variable) {
+                        toast("Please select a variable")
                         setStep(0)
                         return
                     }
@@ -712,12 +725,12 @@ export const CreateWizard = () => {
             <div className="basic-info mx-auto mt-4 flex flex-col gap-4">
             <p className="font-semibold">Create Job</p>
                 <div className="job-info flex flex-col gap-4">
-                    <InputText styleClass="input-sm" placeholder="Enter job name" value={wizardDetails.name} changeFn={(e:any) => onValueChange("name", e)} />
-                    <TextArea styleClass="textarea-sm" placeholder="Job description" value={wizardDetails.description} changeFn={(e:any) => onValueChange("description", e)} />
+                    <InputText disabled={selectedJob || step > 0} styleClass="input-sm" placeholder="Enter job name" value={wizardDetails.name} changeFn={(e:any) => onValueChange("name", e)} />
+                    <TextArea disabled={selectedJob || step > 0} styleClass="textarea-sm" placeholder="Job description" value={wizardDetails.description} changeFn={(e:any) => onValueChange("description", e)} />
                     
                     <div className="flex">
                         <div className="w-[50%] flex items-center">
-                            <Select disabled={loadingProjects} value={wizardDetails.project || null} options={getProjectOptions(projects)} placeholder="Select a project" changeFn={(e:any) => onValueChange("project", e)}/>
+                            <Select disabled={loadingProjects  || step > 0} value={wizardDetails.project || null} options={getProjectOptions(projects)} placeholder="Select a project" changeFn={(e:any) => onValueChange("project", e)}/>
                             {loadingProjects ? (
                                 <div className="ml-2">
                                     <AiOutlineLoading3Quarters color="#036ca1" className="animate-spin"/>
@@ -727,7 +740,7 @@ export const CreateWizard = () => {
                         </div>
 
                         <div className="w-[50%] ml-5 flex items-center">
-                            <Select disabled={loadingVariables} value={wizardDetails.variable || null} options={getVariableOptions()} placeholder="Select variable" changeFn={(e:any) => onValueChange("variable", e)}/>
+                            <Select disabled={loadingVariables  || step > 0} value={wizardDetails.variable || null} options={getVariableOptions()} placeholder="Select variable" changeFn={(e:any) => onValueChange("variable", e)}/>
                             {loadingVariables ? (
                                 <div className="ml-2">
                                     <AiOutlineLoading3Quarters color="#036ca1" className="animate-spin"/>
@@ -741,11 +754,11 @@ export const CreateWizard = () => {
                 </div>
                 <div className="wizard-conatiner">
                     <ul className="steps w-full mx-auto">
-                        <li className={`step text-xs ${step > 0 ? "step-primary" : ""}`}>Step 1</li>
-                        <li className={`step text-xs ${step > 1 ? "step-primary" : ""}`}>Step 2</li>
-                        <li className={`step text-xs ${step > 2 ? "step-primary" : ""}`}>Step 3</li>
-                        <li className={`step text-xs ${step > 3 ? "step-primary" : ""}`}>Step 4</li>
-                        <li className={`step text-xs ${step > 4 ? "step-primary" : ""}`}>Step 5</li>
+                        <li title="This step will generate business logic based on the cobol file" className={`step hover:cursor-pointer text-xs ${step > 0 ? "step-primary" : ""}`}>Step 1</li>
+                        <li title="This step will generate  program summary" className={`step  hover:cursor-pointer text-xs ${step > 1 ? "step-primary" : ""}`}>Step 2</li>
+                        <li title="This step will generate  hyperbatch code" className={`step hover:cursor-pointer text-xs ${step > 2 ? "step-primary" : ""}`}>Step 3</li>
+                        <li title="This step will generate  refined hyperbatch code" className={`step hover:cursor-pointer text-xs ${step > 3 ? "step-primary" : ""}`}>Step 4</li>
+                        <li title="This step will generate  the final output" className={`step hover:cursor-pointer text-xs ${step > 4 ? "step-primary" : ""}`}>Step 5</li>
                     </ul>
                   
                     {loadingApiRequest ? (
