@@ -24,6 +24,7 @@ export const NavBar = () => {
         cookies.remove("session_id");
         dispatch(logoutUser())
         navigate("/login")
+        navigate(0)
     }
 
     return (
