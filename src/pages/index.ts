@@ -1,5 +1,6 @@
 
 export { CreateWizard } from "./wizard/CreateWizard"
+export { RunJob } from "./wizard/RunJob" 
 
 export { Dashboard } from "./Dashboard/Dashboard"
 export { CreateProject } from "./Projects/CreateProject"
@@ -11,3 +12,5 @@ export { Login } from "./Auth/Login"
 export { Signup } from "./Auth/Signup"
 
 export { NotFound } from "./NotFound/NotFound"
+
+console.log("index.ts running [pages]")

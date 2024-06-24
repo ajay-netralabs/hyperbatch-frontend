@@ -102,7 +102,6 @@ export const SideNav = () => {
                 <MdSpaceDashboard color={`${activeMenu === "dashboard" ? "#036da1" : "black" }`} fontSize="16px" />
                 <span className="ml-2 font-semibold text-xs">Dashboard</span>
             </div>
-            {/* <div className="divider mt-0 mb-0"></div>  */}
             <hr />
             <div className={`menu-item flex items-center px-5 py-5 hover:cursor-pointer ${activeMenu === "projects" ? "active" : ""}`} onClick={() => calculateOpenMenu("projects")}>
                 <FiLayers color={`${activeMenu === "projects" ? "#036da1" : "black" }`} fontSize="16px"/>
@@ -161,11 +160,24 @@ export const SideNav = () => {
                 <IoSettingsOutline color={`${activeMenu === "settings" ? "#036da1" : "black" }`} fontSize="16px"/>
                 <span className="ml-2  font-semibold text-xs">Settings</span>
             </div>
-            
-            {/* <div className="relative"> */}
-                 {/* <Submenu list={activeSubmenu} open={hover !== "none"}/> */}
-            {/* </div> */}
             <hr />
         </div>
+
+        // <div className={`sidenav-v2 font-medium shadow-md bg-base-100 flex flex-col w-[12%] h-full ${open ? "open" : ""}`}>
+        //     <div className="m-auto">
+        //         <div className="my-2">
+        //             <p>Projects</p>
+        //         </div>
+        //         <div>
+        //             <p>jobs</p>
+        //         </div>
+        //         <div>
+        //             <p>Reports</p>
+        //         </div>
+        //         <div>
+        //             <p>Admin</p>
+        //         </div>
+        //     </div>
+        // </div>
     )
 }

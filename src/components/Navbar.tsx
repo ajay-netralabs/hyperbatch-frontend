@@ -28,14 +28,15 @@ export const NavBar = () => {
     }
 
     return (
-        <div className="navbar bg-base-100 shadow-md z-40">
-            <div className="flex-none">
+        <div className="navbar bg-[#B9D9EB] shadow-md z-40">
+            {/* <div className="flex-none">
                 <button className="btn btn-square btn-ghost" onClick={toggleSideBar}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-5 h-5 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
              </button>
-            </div>
+            </div> */}
             <div className="flex-1">
-                <a className="logo-text btn btn-ghost text-xl">Hyperbatch</a>
+                <p className="logo-text text-2xl font-semibold text-accent hover:cursor-pointer" onClick={toggleSideBar}>JOSEPH.AI</p>
+                <p className="ml-2 italic text-sm">powered by Netra Labs</p>
             </div>
             {/* <div className="flex-none">
                 <button className="btn btn-square btn-ghost">
@@ -44,20 +45,18 @@ export const NavBar = () => {
             </div> */}
 
             <div className="flex-none gap-2">
-                <div className="dropdown dropdown-end">
-                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                        <FaRegUser fontSize={"28px"} />
+                <div className="flex flex-col items-end text-sm">
+                    <p>ABC Enterprises (ABCD-1234)</p>
+                    <p>Booth, Robert (UN-564545)</p>
+                    <p>License: UL-ABCD-09876</p>
                 </div>
-                <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 w-52">
-                    {/* <li>
-                    <a className="justify-between">
-                        Profile
-                        <span className="badge">New</span>
-                    </a>
-                    </li>
-                    <li><a>Settings</a></li> */}
-                    <li onClick={handleLogoutUser}><a>Logout</a></li>
-                </ul>
+                <div className="dropdown dropdown-end">
+                    <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                            <FaRegUser fontSize={"28px"} />
+                    </div>
+                    <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 w-52">
+                        <li onClick={handleLogoutUser}><a>Logout</a></li>
+                    </ul>
                 </div>
             </div>
         </div>

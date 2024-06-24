@@ -265,6 +265,15 @@ export async function getRefinedHyperbatchCode(
     data_type : string, 
     token : string   
   ) {
+
+    console.log("ids", ids)
+    console.log("data_type", data_type)
+
+    console.log("json string",  JSON.stringify({
+      ids,
+      data_type,
+  }))
+
     try {
       const res = fetch(DELETE, {
         method: "POST",

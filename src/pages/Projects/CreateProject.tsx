@@ -3,6 +3,9 @@ import "./project.css"
 
 import { IoMdRefresh } from "react-icons/io";
 
+import { useDisclosure } from '@mantine/hooks';
+import { Checkbox, Modal } from '@mantine/core';
+
 import { InputText, TextArea, Select, Button } from "../../components/form"
 import { useEffect, useState } from "react";
 import { getAwsDirs, createProject, updateProject, getAllProjects } from "../../services/ApiServices";
@@ -18,6 +21,10 @@ import { addFetch } from "../../store/slices/fetchedResources";
 
 
 export const CreateProject = () => {
+
+    const [inputOpend, inputFilesFunctions ] = useDisclosure(false);
+    const [outputOpened, outputFilesFunctions] = useDisclosure(false)
+    
 
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -49,18 +56,24 @@ export const CreateProject = () => {
                 file: path ? path.length === 1 ? path[0] : path[1] : null,
                 file_type: selectedProject.file_type,
                 fileByte: !path ? selectedProject.file : "",
-                date_created : currentDate
+                date_created : currentDate,
+                input_files : [{ file : path[1]}],
+                output_files: []
             }
 
         }else{
             return {
                 name : "",
                 description : "",
-                folder : "",
-                file: "", // file content || filepath
-                file_type : "",
-                fileByte : "",
-                date_created : currentDate
+                folder : "", // n
+                file: "", // file content || filepath - n
+                file_type : "", // n
+                fileByte : "", // n
+                date_created : currentDate,
+                output_folder : "", // n
+                output_file : "", // n
+                input_files : [],
+                output_files : []
             }
         }
     })
@@ -73,28 +86,97 @@ export const CreateProject = () => {
     const [selectedFolder, setSelectedFolder] = useState("")
 
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const AllProjects = await getAllProjects(token); 
-                if (Array.isArray(AllProjects)) {
-                    // const projectsWithoutFilePath = AllProjects.map(project => ({
-                    //     ...project,
-                    //     filePath: project.filePath ? project.filePath.split('/').pop() : '',
-                    // }));
-                    //@ts-ignore
-                    dispatch(addProject(AllProjects));
-                    dispatch(addFetch("projects"))
-                } 
-            } catch (error) {
-               
-            }
-        };
 
-        if(!allProjects.length && !alreadyFetchedProjects){
-            fetchProjects()
+    const generateRandomID = () => crypto.randomUUID().toString().split("-")[0]
+
+    const FILE_DATA = {
+        folder: "",
+        file: ""
+    }
+
+    const INITIAL_INPUT_FILE = {
+        ...FILE_DATA,
+        id: generateRandomID(),
+    }
+
+    const INITIAL_OUTPUT_FILE = {
+        ...FILE_DATA,
+        id: generateRandomID(),
+    }
+
+    const [inputFile, setInputFile] = useState<any>(INITIAL_INPUT_FILE)
+
+    const [outputFile, setOutputFile] = useState<any>(INITIAL_OUTPUT_FILE)
+
+    const [selectedInputFiles, setSelectedInputFiles] = useState<any[]>([])
+
+    const [selectedOutputFiles, setSelectedOutputFiles] = useState<any[]>([])
+
+
+    const handleSelectInputFile = (check:boolean, id:string) => {
+        if(check){
+            setSelectedInputFiles((state:any) => ([...state, id]))
+        }else{
+            setSelectedInputFiles((state:any) => state.filter((selectedId:string) => selectedId !== id))
         }
-    },[])
+    }
+
+    console.log("selected input files", selectedInputFiles)
+
+    const handleSelectOutputFile = (check:boolean, id:string) => {
+        if(check){
+            setSelectedOutputFiles((state:any) => ([...state, id]))
+        }else{
+            setSelectedOutputFiles((state:any) => state.filter((selectedId:string) => selectedId !== id))
+        }
+    }   
+
+
+    const handleDeleteFile = (type:string) => {
+        // delete selected files
+        if(type === "input") {
+            setProjectData((state:any) => {
+                return {
+                    ...state,
+                    input_files : state.input_files.filter((inputData:any) => !selectedInputFiles.includes(inputData.id))
+                }
+            })
+        }
+
+        if(type === "output") {
+            setProjectData((state:any) => {
+                return {
+                    ...state,
+                    output_files : state.output_files.filter((outputData:any) => !selectedInputFiles.includes(outputData.id))
+                }
+            })
+        }
+
+        // TODO: [call update project api with project Data]
+    }
+
+    // useEffect(() => {
+    //     const fetchProjects = async () => {
+    //         try {
+    //             const AllProjects = await getAllProjects(token); 
+    //             if (Array.isArray(AllProjects)) {
+    //                 // const projectsWithoutFilePath = AllProjects.map(project => ({
+    //                 //     ...project,
+    //                 //     filePath: project.filePath ? project.filePath.split('/').pop() : '',
+    //                 // }));
+    //                 //@ts-ignore
+    //                 dispatch(addProject(AllProjects));
+    //                 dispatch(addFetch("projects"))
+    //             } 
+    //         } catch (error) {
+               
+    //         }
+    //     };
+
+    //     if(!allProjects.length && !alreadyFetchedProjects){
+    //         fetchProjects()
+    //     }
+    // },[])
 
     useEffect(() => {
         return () => {
@@ -343,6 +425,8 @@ export const CreateProject = () => {
         navigate("/projects")
     }
 
+    console.log("project data", projectData)
+
     const handleFileUpload = async (e:any) => {
         const file = e.target.files[0]
 
@@ -366,19 +450,53 @@ export const CreateProject = () => {
 
     const FileOptions = [{ label: "AWS", value: "aws"}, { label: "Upload", value : "upload"}]
 
+    console.log("selected project", selectedProject)
+
+    const handleAddFile = (type:string) => {
+        if(type === "input"){
+            setProjectData((state:any) => (
+                {...state, input_files : [...state.input_files, inputFile]}
+            ))
+
+            setInputFile(INITIAL_INPUT_FILE)
+            inputFilesFunctions.close()
+        }
+
+        if(type === "output"){
+            setProjectData((state:any) => (
+                {...state, output_files : [...state.output_files, outputFile]}
+            ))
+
+            setOutputFile(INITIAL_OUTPUT_FILE)
+            outputFilesFunctions.close()
+        }
+    }
+
     return (
         <>
             <div className={`project-container flex justify-center ${open ? "sidenav-open" : ""}`}>
                 {/* <div className="project w-[75%] mx-auto"> */}
 
                 {!loading ? (
-                    <div className="w-full">
-                        <p className="font-semibold">Create Project</p>
+                    <div className="w-full mt-3">
+                        <div className="flex justify-center">
+                            <p className="font-semibold uppercase">{selectedProject ? "Edit Project" : "Add Project"}</p>
+                        </div>
                         <div className="w-full flex flex-col gap-2">
-                            <InputText  placeholder="Enter project name" styleClass="mt-4 input-sm" value={projectData.name} changeFn={(e:any) => {handleInputChange(e, "name")}} />
-                            <TextArea placeholder="Project description" styleClass="mt-4 textarea-sm" value={projectData.description} changeFn={(e:any) => {handleInputChange(e, "description")}} />
-                            <Select placeholder="Select file type" styleClass="mt-4" value={projectData.file_type || null} options={FileOptions} changeFn={(e:any) => {handleInputChange(e, "file_type")}} />
-                            {/* <div className="flex gap-4 mt-4"> */}
+                            <div className="flex mt-4 justify-between gap-2 items-center">
+                                <p className="text-xs">Project&nbsp;:</p>
+                                <div className=" w-[90%]">
+                                    <InputText  placeholder="Enter project name" styleClass="rounded-none input-sm" value={projectData.name} changeFn={(e:any) => {handleInputChange(e, "name")}} />
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 justify-between items-center">
+                                <p className="text-xs">Description&nbsp;:</p>
+                                <div className="w-[90%]">
+                                    <TextArea placeholder="Project description" styleClass="rounded-none mt-4 textarea-sm" value={projectData.description} changeFn={(e:any) => {handleInputChange(e, "description")}} />
+                                </div>
+                            </div>
+                            {/* <Select placeholder="Select file type" styleClass="mt-4" value={projectData.file_type || null} options={FileOptions} changeFn={(e:any) => {handleInputChange(e, "file_type")}} />
                                     {projectData.file_type === "aws" ? (
                                          <div className="flex gap-4 mt-4">
                                         <Select placeholder="Select Folder" value={projectData.folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => handleFilePath(e, "folder")} />
@@ -395,10 +513,103 @@ export const CreateProject = () => {
                                          <div className="flex gap-4 mt-4">
                                             <input type="file" accept="txt" className="file-input file-input-sm file-input-primary file-input-bordered w-full" onChange={(e:any) => handleFileUpload(e)} />
                                         </div>
-                                    ) : null}
-                            {/* </div> */}
-                            <div className="w-[30%] flex mt-3">
-                            {selectedProject ? (<Button variant="primary" size="sm"  styleClasses={`${loading ? "btn-disabled" : ""} !text-xs`} clickFn={handleUpdateProject}>Update Project</Button>): (<Button variant="primary" size="sm" styleClasses={`${loading ? "btn-disabled" : ""} !text-xs`} clickFn={handleCreateProject}>Create Project</Button>)}
+                                    ) : null} */}
+
+                            {/* input files table */}
+                            <div className="mt-4">
+                                <div className="table h-[30vh]">
+                                    <div className="table-heading border-b-black">
+                                        <div className="ml-2 !py-[5px]">Input Files</div>
+                                        <div className="flex gap-2 ml-2 !py-[5px] mr-2">
+                                            <Button clickFn={() => handleDeleteFile("input")} size="xs" styleClasses="!rounded-none border-[#007791] bg-[#007791] text-white">Delete Files</Button>
+                                            <Button clickFn={() => inputFilesFunctions.open()} size="xs" styleClasses="!rounded-none border-[#007791] bg-[#007791] text-white">Add File</Button>
+                                        </div>
+                                    </div>
+                                    <div className="table-heading">
+                                        <div style={{ width: "3%" }} className="border-black border-r !py-[5px]">&nbsp;</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">File Name</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">Description</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">Lines</div>
+                                        <div style={{ width: "25%" }} className=" ml-2 !py-[5px]">Date Uploaded</div>
+                                    </div>
+                                    <div className="table-body">
+                                        {/* {projectData.input_files.map((files: any)) =>( 
+                                            <div>
+                                                <Checkbox />
+                                            <div>
+                                        )} */}
+
+                                            {projectData.input_files.map((file:any, index) => (
+                                                <div className="table-data" key={index}>
+                                                    <div style={{ width: "3%" }} className="table-data-container border-black border-r !py-[5px]  flex justify-center">
+                                                        <Checkbox 
+                                                         checked={selectedInputFiles.includes(file.id)}
+                                                         onChange={(e) => handleSelectInputFile(e.target.checked, file.id)}/>
+                                                    </div>
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                        <p>{file.file}</p>
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container ml-2">
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* output files table */}
+                            <div className="mt-2">
+                                <div className="table h-[30vh]">
+                                    <div className="table-heading border-b-black">
+                                        <div className="ml-2 !py-[5px]">Expected Output Files</div>
+                                        <div className="flex gap-2 ml-2 !py-[5px] mr-2">
+                                            <Button clickFn={() => handleDeleteFile("output")} size="xs" styleClasses="!rounded-none border-[#007791] bg-[#007791] text-white">Delete Files</Button>
+                                            <Button clickFn={() => outputFilesFunctions.open()} size="xs" styleClasses="!rounded-none border-[#007791] bg-[#007791] text-white">Add File</Button>
+                                        </div>
+                                    </div>
+                                    <div className="table-heading">
+                                        <div style={{ width: "3%" }} className="border-black border-r !py-[5px]">&nbsp;</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">File Name</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">Description</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">Lines</div>
+                                        <div style={{ width: "25%" }} className=" ml-2 !py-[5px]">Date Uploaded</div>
+                                    </div>
+                                    <div className="table-body">
+                                        {projectData.output_files.map((file:any, index) => (
+                                                <div className="table-data" key={index}>
+                                                    <div style={{ width: "3%" }} className="table-data-container border-black border-r !py-[5px]  flex justify-center">
+                                                        <Checkbox 
+                                                         checked={selectedInputFiles.includes(file.id)}
+                                                         onChange={(e) => handleSelectInputFile(e.target.checked, file.id)}/>
+                                                    </div>
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                        <p>{file.file}</p>
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container ml-2">
+                                                    </div>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex justify-end mt-3">
+                                <Button size="sm" clickFn={() => console.log("clicked")} styleClasses="btn-accent !rounded-sm text-white">Save Project</Button>
+                            {/* {selectedProject ? (<Button variant="primary" size="sm"  styleClasses={`${loading ? "btn-disabled" : ""} !text-xs`} clickFn={handleUpdateProject}>Update Project</Button>): (<Button variant="primary" size="sm" styleClasses={`${loading ? "btn-disabled" : ""} !text-xs`} clickFn={handleCreateProject}>Create Project</Button>)} */}
                             </div>
                         </div>
                     </div>
@@ -411,6 +622,56 @@ export const CreateProject = () => {
 
                 {/* </div> */}
             </div>
+
+            {/* add input files modal */}
+            <Modal opened={inputOpend} onClose={inputFilesFunctions.close} title="Add Input Files" centered size={"lg"}>
+                <div className="flex gap-4 mt-4">
+                    <Select placeholder="Select Folder" value={inputFile.folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => setInputFile((state:any) => ({...state, folder : e.target.value}))} />
+                    <Select placeholder="Select File" value={inputFile.file || null} options={getFileName(selectedFolder || projectData.folder)} changeFn={(e:any) => setInputFile((state:any) => ({...state, file : e.target.value}))} />
+                    <Button variant="primary" size="sm" styleClasses="!h-fit" clickFn={fetchAwsDir}>
+                        <div className={`${awsLoading ? "animate-spin" : ""}`}>
+                            <IoMdRefresh color="white"/>
+                        </div>
+                    </Button>
+                </div>
+
+                <div className="flex justify-end mt-8">
+                    <Button variant="accent" size="sm" styleClasses="rounded-none text-white" clickFn={() => handleAddFile("input")}>Add</Button>
+                </div>
+            </Modal>
+
+            {/* add output files modal */}
+            <Modal opened={outputOpened} onClose={outputFilesFunctions.close} title="Add Output Files" centered size={"lg"}>
+                <div className="flex flex-col gap-4 mt-4">
+                    <div className="flex gap-4">
+                        <Select placeholder="Select Folder" value={projectData.output_folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => setOutputFile((state:any) => ({...state, folder : e.target.value}))} />
+                        {/* <Select placeholder="Select File" value={projectData.output_file || null} options={getFileName(selectedFolder || projectData.folder)} changeFn={(e:any) => handleFilePath(e, "file")} /> */}
+                        <Button variant="primary" size="sm" styleClasses="!h-fit" clickFn={fetchAwsDir}>
+                            <div className={`${awsLoading ? "animate-spin" : ""}`}>
+                                <IoMdRefresh color="white"/>
+                            </div>
+                        </Button>
+                    </div>
+                    <InputText styleClass="input-sm" value={projectData.name} changeFn={(e:any) => setOutputFile((state:any) => ({...state, file : e.target.value}))}/>
+                </div>
+
+                <div className="flex justify-end mt-8">
+                    <Button variant="accent" size="sm" styleClasses="rounded-none text-white" clickFn={() => handleAddFile("output")}>Add</Button>
+                </div>
+            </Modal>
         </>
     )
 }
+
+
+// const inputFilesModal = (opened:boolean, close:any) => {
+//     return (
+//         <>
+//           <Modal opened={opened} onClose={close} title="Authentication" centered>
+//             {/* Modal content */}
+//           </Modal>
+    
+//           {/* <Button onClick={open}>Open centered Modal</Button> */}
+//         </>
+//       );
+//     }

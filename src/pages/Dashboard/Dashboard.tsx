@@ -25,63 +25,66 @@ export const Dashboard = () => {
 
     const fetchedResources = useSelector((state: any) => state.fetchedResources)
 
-
     useEffect(() => {
-        const fetchAll = async() => {
-
-            if(!projects.length && !fetchedResources.projects){
-                try{
-                    const projects = await getAllProjects(token);
-                    if (Array.isArray(projects)) {
-                        // const projectsWithoutFilePath = AllProjects.map(project => ({
-                        //     ...project,
-                        //     filePath: project.filePath ? project.filePath.split('/').pop() : '',
-                        // }));
-                        //@ts-ignore
-                        dispatch(addProject(projects));
-                        dispatch(addFetch("projects"))
-                    }
-    
-                }catch(err){
-    
-                }
-            }
-
-            if(!jobs.length && !fetchedResources.jobs){
-                try{
-                    const jobs = await getAllJobs(token)
-    
-                    if (Array.isArray(jobs)) {
-                        dispatch(addJob(jobs));
-                        dispatch(addFetch("jobs"))
-                    }
-    
-                }catch(err){
-    
-                }
-            }
-
-            if(!variables.length && !fetchedResources.variables){
-                try{
-                    const variables = await getAllVariables(token)
-    
-                    if (Array.isArray(variables)) {
-                        dispatch(addVariable(variables));
-                        dispatch(addFetch("variables"))
-                    }
-    
-                }catch(err){
-    
-                }
-            }
-
-
-            // navigate to projects since dashboard is not available right now
-            navigate("/projects")
-        }
-
-        fetchAll()
+        navigate("/projects")
     }, [])
+
+    // useEffect(() => {
+    //     const fetchAll = async() => {
+
+    //         if(!projects.length && !fetchedResources.projects){
+    //             try{
+    //                 const projects = await getAllProjects(token);
+    //                 if (Array.isArray(projects)) {
+    //                     // const projectsWithoutFilePath = AllProjects.map(project => ({
+    //                     //     ...project,
+    //                     //     filePath: project.filePath ? project.filePath.split('/').pop() : '',
+    //                     // }));
+    //                     //@ts-ignore
+    //                     dispatch(addProject(projects));
+    //                     dispatch(addFetch("projects"))
+    //                 }
+    
+    //             }catch(err){
+    
+    //             }
+    //         }
+
+    //         if(!jobs.length && !fetchedResources.jobs){
+    //             try{
+    //                 const jobs = await getAllJobs(token)
+    
+    //                 if (Array.isArray(jobs)) {
+    //                     dispatch(addJob(jobs));
+    //                     dispatch(addFetch("jobs"))
+    //                 }
+    
+    //             }catch(err){
+    
+    //             }
+    //         }
+
+    //         if(!variables.length && !fetchedResources.variables){
+    //             try{
+    //                 const variables = await getAllVariables(token)
+    
+    //                 if (Array.isArray(variables)) {
+    //                     dispatch(addVariable(variables));
+    //                     dispatch(addFetch("variables"))
+    //                 }
+    
+    //             }catch(err){
+    
+    //             }
+    //         }
+
+
+    //         // navigate to projects since dashboard is not available right now
+    //         navigate("/projects")
+    //     }
+
+    //     fetchAll()
+    // }, [])
 
     return(
         <div className={`project-container flex justify-center items-center ${open ? "sidenav-open" : ""}`}>

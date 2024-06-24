@@ -16,6 +16,7 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 // import { IJob } from "../../store/slices/job.slice";
 import Cookies from 'universal-cookie';
 import { addFetch } from "../../store/slices/fetchedResources";
+import { Checkbox } from '@mantine/core';
 
 const WizardHome = () => {
     const cookies = new Cookies(null, { path: '/' });
@@ -29,28 +30,29 @@ const WizardHome = () => {
 
     const alreadyFetchedJobs = useSelector((state:any) => state.fetchedResources.jobs)
 
+    const [selectedJob, setSelectedJob] = useState<any|null>(null)
     // useEffect(() => {
     //     setJobsCopy(jobs)
     // }, [jobs])
 
 
     const fetchProjects = async () => {
-        try {
-            setLoading(true)
-            const AllJobs = await getAllJobs(token);
+        // try {
+        //     setLoading(true)
+        //     const AllJobs = await getAllJobs(token);
 
-            if (Array.isArray(AllJobs)) {
-                dispatch(addJob(AllJobs));
-                dispatch(addFetch("jobs"))
-            } else {
-                toast.error(AllJobs.message || "Unexpected error occurred.")
-            }
-            setLoading(false)
-        } catch (error) {
-            toast.error("Unexpected Error, please contact support.")
-            console.error('Error fetching projects:', error);
-            setLoading(false)
-        }
+        //     if (Array.isArray(AllJobs)) {
+        //         dispatch(addJob(AllJobs));
+        //         dispatch(addFetch("jobs"))
+        //     } else {
+        //         toast.error(AllJobs.message || "Unexpected error occurred.")
+        //     }
+        //     setLoading(false)
+        // } catch (error) {
+        //     toast.error("Unexpected Error, please contact support.")
+        //     console.error('Error fetching projects:', error);
+        //     setLoading(false)
+        // }
     };
 
     useEffect(() => {
@@ -83,132 +85,178 @@ const WizardHome = () => {
     }
 
 
-const handleRowClick = (id: string) => {
-            dispatch(addCurrentJob(id))
-            navigate("/jobs/create")
+    const handleRowClick = (id: string) => {
+        dispatch(addCurrentJob(id))
+        navigate("/jobs/create")
 
+    }
+
+    const handleSelectJob = (selected:boolean, job:any) => {
+        if(selected){
+            setSelectedJob(job)
+        }else{
+            setSelectedJob(null)
         }
-        return (
-            <div className={`project-container ${open ? "sidenav-open" : ""}`}>
-                <div className="w-full flex flex-col justify-center item-center mx-auto" >
-                    <div className="flex justify-between">
-                        <h1 className="top-heading"></h1>
-                        <button
-                            className="btn btn-primary ml-10 !text-xs"
-                            onClick={() => navigate("/jobs/create")}
-                        >
-                            <FaPlus size={14} className="" />
-                            <b>Create Job</b>
-                        </button>
-                    </div>
+    }
 
-                    <div className="table-holder">
-                        <div className="table">
-                            <div className="table-heading">
-                                {/* <div style={{ width: "5%" }}>
-                          <Checkbox
-                              color="#036ca1"
-                          //   checked={selectedBatch.length > 0}
-                          //   onClick={handleSelectAllBatch}
-                          //   indeterminate={
-                          //     selectedBatch.length > 0 &&
-                          //     selectedBatch.length < batches.length
-                          //   }
-                          />
-                      </div> */}
-                                <div style={{ width: "25%" }}>Job Name</div>
-                                <div style={{ width: "25%" }}>
-                                    Job Description
-                                </div>
-                                <div style={{ width: "25%" }}>
-                                    Selected Project
-                                </div>
+    console.log("selected job", selectedJob)
 
-                                <div style={{ width: "20%" }}>
-                                    Date Created
-                                </div>
-                                <div style={{ width: "5%" }} className="text-center">
-                                    Actions
-                                </div>
+    return (
+        <div className={`project-container ${open ? "sidenav-open" : ""}`}>
+            <div className="w-full flex flex-col justify-center item-center mx-auto my-3" >
+                <div className="flex justify-center">
+                    <h1 className="top-heading font-semibold">JOBS</h1>
+                </div>
+                <div className="flex justify-end">
+                    <button
+                        className={`btn btn-primary ml-2 !text-xs btn-accent text-white !rounded-sm ${selectedJob ? "" : "btn-disabled"}`}
+                        onClick={() => navigate(`/jobs/run/${selectedJob._id}`)}
+                    >
+                        {/* <FaPlus size={14} className="" /> */}
+                        <b>Run Job</b>
+                    </button>
+                    <button
+                        className={`btn btn-primary ml-2 !text-xs btn-accent text-white !rounded-sm ${selectedJob ? "" : "btn-disabled"}`}
+                        onClick={() => handleRowClick(selectedJob._id)}
+                    >
+                        {/* <FaPlus size={14} className="" /> */}
+                        <b>Edit Job</b>
+                    </button>
+                    <button
+                        className="btn btn-primary ml-2 !text-xs btn-accent text-white !rounded-sm"
+                        onClick={() => navigate("/jobs/create")}
+                    >
+                        {/* <FaPlus size={14} className="" /> */}
+                        <b>Add Job</b>
+                    </button>
+                </div>
+
+                <div className="table-holder">
+                    <div className="table">
+                        <div className="table-heading">
+                            {/* for checkbox */}
+                            <div style={{ width: "3%" }} className="border-black border-r">&nbsp;</div>
+                            {/* for status light */}
+                            <div style={{ width: "2%" }} className="border-black border-r">&nbsp;</div>
+                            <div style={{ width: "25%" }} className="border-black border-r ml-2">Job Name</div>
+                            <div style={{ width: "25%" }} className="border-black border-r ml-2">
+                                Job Description
+                            </div>
+                            <div style={{ width: "25%" }} className="border-black border-r ml-2">
+                                Selected Project
                             </div>
 
-                            {loading ? (
-                                <div className="table-body">
-                                    <div className="h-[50vh] mt-2 flex justify-around items-center">
-                                        <AiOutlineLoading3Quarters color="#036ca1" fontSize={"50px"} className="animate-spin" />
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="table-body">
-                                    {jobs.length ? jobs.map((item: any) => (
-                                        <div className="table-data" key={item.job_id}>
-                                            {/* <div style={{ width: "5%" }}>
-                                  <Checkbox
-                                      color="#036ca1"
-                                  />
-                              </div> */}
-                                            <div
-                                                style={{ width: "25%", color: "#1f78a5" }} className="font-semibold hover:cursor-pointer" onClick={() => handleRowClick(item.job_id)}
-                                            // className="table-data__title flex items-center"
+                            <div style={{ width: "20%" }} className="border-black border-r ml-2">
+                                Date Created
+                            </div>
+                            {/* <div style={{ width: "5%" }} className="text-center">
+                                Actions
+                            </div> */}
+                        </div>
 
+                        {loading ? (
+                            <div className="table-body">
+                                <div className="h-[50vh] mt-2 flex justify-around items-center">
+                                    <AiOutlineLoading3Quarters color="#036ca1" fontSize={"50px"} className="animate-spin" />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="table-body">
+                                {jobs.length ? jobs.map((item: any) => (
+                                    <div className="table-data" key={item.job_id}>
+                                        {/* checkbox */}
+                                        <div className="table-data-container border-black border-r " style={{ width: "3%" , color: "#1f78a5"}}>
+                                            <div className="mx-auto">
+                                                <Checkbox
+                                                    color="rgba(0, 0, 0, 1)"
+                                                    radius="xs"
+                                                    variant="outline"
+                                                    checked={selectedJob?._id === item._id}
+                                                    disabled={selectedJob && selectedJob?._id !== item._id }
+                                                    onChange={(event) => handleSelectJob(event.currentTarget.checked, item)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* status light */}
+                                        <div className="table-data-container border-black border-r " style={{ width: "2%" , color: "#1f78a5"}}>
+                                            <div className="mx-auto">
+                                                {/* <Checkbox
+                                                    color="rgba(0, 0, 0, 1)"
+                                                    radius="xs"
+                                                    variant="outline"
+                                                    
+                                                /> */}
+                                                {/* <div className="indicator"> */}
+                                                    <div className="indicator-item badge badge-xs badge-success"></div> 
+                                                    {/* <div className="grid w-32 h-32 bg-base-300 place-items-center">content</div> */}
+                                                {/* </div> */}
+                                            </div>
+                                        </div>
+                                        <div style={{ width: "25%" , color: "#1f78a5"}} className="table-data-container font-semibold hover:cursor-pointer border-black border-r ml-2">
+                                            <div
+                                                onClick={() => handleRowClick(item.job_id)}
                                             >
                                                 {item.name}
                                             </div>
-
+                                        </div>
+                                        
+                                        <div style={{ width: "25%" }} className="table-data-container border-black border-r ml-2">
                                             <div
-                                                style={{ width: "25%" }} className="text-xs"
-                                            // className="table-data__description flex items-center"
+                                                    className="text-xs"
 
                                             >
                                                 {item.description}
                                             </div>
+                                        </div>
 
+                                        <div style={{ width: "25%" }} className="table-data-container border-black border-r ml-2">
                                             <div
-                                                style={{ width: "25%" }} className="text-xs"
-                                            // className="table-data__file flex items-center"
+                                                    className="text-xs"
 
                                             >
                                                 {item.project_name}
                                             </div>
+                                        </div>
 
+                                        <div style={{ width: "20%" }} className="table-data-container ml-2">
                                             <div
-                                                style={{ width: "20%" }} className="text-xs"
-                                            // className="table-data__date flex items-center"
+                                                    className="text-xs"
 
                                             >
                                                 {item.date_created}
                                             </div>
-                                            <Menu withArrow arrowPosition="center" shadow="md"> 
-                                                <Menu.Target>
-                                            <div
-                                                style={{ width: "5%" }} className="flex justify-center cursor-pointer hover:scale-105 transition"
-                                            >
-                                                {/* onClick={() => handleDeleteProject(item.id)} */}
-                                                <HiOutlineDotsHorizontal />
-                                            </div>
-                                            </Menu.Target>
-                                            <Menu.Dropdown  className="prompt-dropdown">
-                                                <Menu.Item className="prompt-dropdown-item border-top" onClick={() =>handleDeleteJob(item.job_id)}>
-                                                    Delete
-                                                </Menu.Item>
-                                            </Menu.Dropdown>
-                                            </Menu>
                                         </div>
+                                        {/* <Menu withArrow arrowPosition="center" shadow="md"> 
+                                            <Menu.Target>
+                                        <div
+                                            style={{ width: "5%" }} className="flex justify-center cursor-pointer hover:scale-105 transition"
+                                        >
+                                            <HiOutlineDotsHorizontal />
+                                        </div>
+                                        </Menu.Target>
+                                        <Menu.Dropdown  className="prompt-dropdown">
+                                            <Menu.Item className="prompt-dropdown-item border-top" onClick={() =>handleDeleteJob(item.job_id)}>
+                                                Delete
+                                            </Menu.Item>
+                                        </Menu.Dropdown>
+                                        </Menu> */}
+                                    </div>
 
 
 
-                                    )) : <div className="h-[50vh] mt-2 flex justify-around items-center">
-                                        <p className="text-lg">You don't have any jobs</p>
-                                    </div>}
-                                </div>
-                            )}
+                                )) : <div className="h-[50vh] mt-2 flex justify-around items-center">
+                                    <p className="text-lg">You don't have any jobs</p>
+                                </div>}
+                            </div>
+                        )}
 
 
-                        </div>
                     </div>
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
+}
 
     export default WizardHome

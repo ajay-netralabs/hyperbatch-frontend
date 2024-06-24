@@ -5,14 +5,14 @@ import { TextEditor } from "../../components/index";
 
 import "./wizard.css"
 import { useDispatch, useSelector } from "react-redux";
-import { getAllProjects, getBusinessLogic, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, getAllJobs ,getFinalHyperbatchCode, getAllVariables } from "../../services/ApiServices";
+import { getAllProjects, getBusinessLogic, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, getAllJobs ,getFinalHyperbatchCode, getAllVariables, deleteData } from "../../services/ApiServices";
 import { toast } from "react-toastify";
 
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { downloadText } from "download.js";
 import { addCurrentJob } from "../../store/slices/currentResources";
 import { useNavigate } from "react-router-dom";
-import { addJob, addOne, updateOne } from "../../store/slices/job.slice";
+import { addJob, addOne, deleteJob, updateOne } from "../../store/slices/job.slice";
 
 import CodeEditor from "@uiw/react-textarea-code-editor";
 import { addVariable } from "../../store/slices/variables.slice";
@@ -36,6 +36,8 @@ export const CreateWizard = () => {
     const allvariables = useSelector((state:any) => state.variables.variables)
 
     const alreadyFetched = useSelector((state:any) => state.fetchedResources)
+
+    const [loading, setLoading] = useState<boolean>(false)
 
 
     const [wizardDetails , setWizardDetails] = useState(() => {
@@ -169,18 +171,18 @@ export const CreateWizard = () => {
 
     useEffect(() => {
         // dispatch setProjects from here
-        const getProjects = async () => {
-            setLoadingProjects(true)
-            const projects = await getAllProjects(token)
-            setProjects(projects)
-            setLoadingProjects(false)
-        }
+        // const getProjects = async () => {
+        //     setLoadingProjects(true)
+        //     const projects = await getAllProjects(token)
+        //     setProjects(projects)
+        //     setLoadingProjects(false)
+        // }
 
-        if(allProjects.length){
-            setProjects(allProjects)
-        }else{
-            getProjects()
-        }
+        // if(allProjects.length){
+        //     setProjects(allProjects)
+        // }else{
+        //     getProjects()
+        // }
         // get projects on load
 
         if(selectedJob){
@@ -192,21 +194,21 @@ export const CreateWizard = () => {
         }
     }, [])
 
-    useEffect(() => {
-        const fetchJobs = async () => {
-            try {
-                const AllJobs = await getAllJobs(token); 
+    // useEffect(() => {
+    //     const fetchJobs = async () => {
+    //         try {
+    //             const AllJobs = await getAllJobs(token); 
     
-                if (Array.isArray(AllJobs)) {
-                    dispatch(addJob(AllJobs));
-                    dispatch(addFetch("jobs"))
-                }
-            } catch (error) {
-            }
-        };
+    //             if (Array.isArray(AllJobs)) {
+    //                 dispatch(addJob(AllJobs));
+    //                 dispatch(addFetch("jobs"))
+    //             }
+    //         } catch (error) {
+    //         }
+    //     };
 
-        if(!allJobs.length && !alreadyFetched.jobs ) fetchJobs()
-    }, [])
+    //     if(!allJobs.length && !alreadyFetched.jobs ) fetchJobs()
+    // }, [])
 
 
     const getProjectOptions = (projects:any) => {
@@ -718,89 +720,203 @@ export const CreateWizard = () => {
 }
 
 
+const handleDeleteJob = async (job_id: string) => {
+    try {
+        const ids: string[] = [];
+        ids.push(job_id);
+        setLoading(true)
+        const res = await deleteData(ids, "jobs", token);
+        if (res && res.ok) {
+            const result = await res.json();
+            if (result.error === true) {
+                toast.error(result.message);
+            } else {
+                dispatch(deleteJob({job_id}))
+                toast.success("Successfully deleted!")
+                navigate("/jobs")
+            }
+        }
+    } catch (error){
+        toast.error("Something went wrong");
+        console.log(error);
+
+    } finally{
+        setLoading(false)
+    }
+}
+
+    console.log("selected job", selectedJob)
     return (
         <div className="">
-        <div className={`card-container ${open ? "sidenav-open" : ""}`}>
-        <div className="info-wizard-container">
-            <div className="basic-info mx-auto mt-4 flex flex-col gap-4">
-            <p className="font-semibold">Create Job</p>
-                <div className="job-info flex flex-col gap-4">
-                    <InputText disabled={selectedJob || step > 0} styleClass="input-sm" placeholder="Enter job name" value={wizardDetails.name} changeFn={(e:any) => onValueChange("name", e)} />
-                    <TextArea disabled={selectedJob || step > 0} styleClass="textarea-sm" placeholder="Job description" value={wizardDetails.description} changeFn={(e:any) => onValueChange("description", e)} />
-                    
-                    <div className="flex">
-                        <div className="w-[50%] flex items-center">
-                            <Select disabled={loadingProjects  || step > 0} value={wizardDetails.project || null} options={getProjectOptions(projects)} placeholder="Select a project" changeFn={(e:any) => onValueChange("project", e)}/>
-                            {loadingProjects ? (
-                                <div className="ml-2">
-                                    <AiOutlineLoading3Quarters color="#036ca1" className="animate-spin"/>
+            <div className={`project-container ${open ? "sidenav-open" : ""}`}>
+            {loading ? (
+                            <div className="table-body">
+                                <div className="h-[50vh] mt-2 flex justify-around items-center">
+                                    <AiOutlineLoading3Quarters color="#036ca1" fontSize={"50px"} className="animate-spin" />
                                 </div>
-                            ) : ""}
+                            </div>
+                        ): (
 
+                <div className="info-wizard-container">
+                    <div className="basic-info mx-auto mt-4 flex flex-col gap-4">
+                        {/* heading */}
+                        <div className="flex justify-center">
+                            <p className="font-semibold">{selectedJob ? "Edit Job" : "Add Job"}</p>
                         </div>
-
-                        <div className="w-[50%] ml-5 flex items-center">
-                            <Select disabled={loadingVariables  || step > 0} value={wizardDetails.variable || null} options={getVariableOptions()} placeholder="Select variable" changeFn={(e:any) => onValueChange("variable", e)}/>
-                            {loadingVariables ? (
-                                <div className="ml-2">
-                                    <AiOutlineLoading3Quarters color="#036ca1" className="animate-spin"/>
+                        <div className="job-info flex flex-col gap-4">
+                            {/* job name */}
+                            <div className="flex gap-2 justify-between items-center">
+                                <p className="text-xs">Job&nbsp;:</p>
+                                <div className="w-[90%]">
+                                    <InputText disabled={selectedJob || step > 0} styleClass="rounded-none input-sm" placeholder="Enter job name" value={wizardDetails.name} changeFn={(e:any) => onValueChange("name", e)} />
                                 </div>
-                            ) : ""}
+                            </div>
 
-                        </div>
-
-                    </div>
-
-                </div>
-                <div className="wizard-conatiner">
-                    <ul className="steps w-full mx-auto">
-                        <li className={`step text-xs ${step > 0 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 1 (Business Rules Generation)`}</span></li>
-                        <li className={`step text-xs ${step > 1 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 2 (Data Processing Summary)`}</span></li>
-                        <li className={`step text-xs ${step > 2 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 3 (First HB Code)`}</span></li>
-                        <li className={`step text-xs ${step > 3 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 4 (Refined HB Code)`}</span></li>
-                        <li className={`step text-xs ${step > 4 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 5 (Final HB Code)`}</span></li>
-                    </ul>
-                  
-                    {loadingApiRequest ? (
-                        <div className="h-[40vh] mt-2 flex justify-around items-center">
-                            <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
-                        </div>
-                    ) :  (
-                        <div className="border bg-base-100 mt-4">
-                            <div className="w-tc-editor-var"> </div>
-                            {getWizardComponent(step)}
-                        </div>
-                        )}    
-
-
-                    <div className="flex justify-between mt-3">
-                        {step >= 2 ? (
-                            <Button variant="primary" size="sm" styleClasses={`ml-2 !text-xs ${loadingApiRequest || loadingProjects ? "btn-disabled" : ""}`} clickFn={decrementStep}>Previous</Button>
-                        ) : <div></div>}
-                        <div>
-                            {step >= 1 ? (
-                                <Button variant="primary" size="sm" styleClasses={`ml-2 !text-xs ${loadingApiRequest || loadingProjects ? "btn-disabled" : ""}`} clickFn={downloadFile}>Download</Button>
-
-                            ) : null}
-
-                            {step <= 4 ? (
-                                <Button variant="primary" size="sm" styleClasses={`ml-2 !text-xs ${loadingApiRequest || loadingProjects ? "btn-disabled" : ""}`} clickFn={incrementStep}>Next</Button>
-                            ) : null}
-
-                            {step === 5 ? (
-                                <Button variant="primary" size="sm" styleClasses={`ml-2 !text-xs ${loadingApiRequest || loadingProjects ? "btn-disabled" : ""}`} clickFn={() => navigate("/jobs")}>Save</Button>
-                            ) : null}
+                            {/* job description */}
+                            <div className="flex gap-2 justify-between items-center">
+                                <p className="text-xs">Description&nbsp;:</p>
+                                <div className="w-[90%]">
+                                    <TextArea disabled={selectedJob || step > 0} styleClass="rounded-none textarea-sm" placeholder="Job description" value={wizardDetails.description} changeFn={(e:any) => onValueChange("description", e)} />
+                                </div>
+                            </div>
                             
+                            {/* project */}
+                            <div className="flex gap-2 justify-between items-center">
+                                <p className="text-xs">Project&nbsp;:</p>
+                                <div className="w-[90%]">
+                                    <Select styleClass="rounded-none" disabled={loadingProjects  || step > 0} value={wizardDetails.project || null} options={getProjectOptions(projects)} placeholder="Select a project" changeFn={(e:any) => onValueChange("project", e)}/>
+                                </div>
+                            </div>
 
+                            {/* input files table */}
+                            <div className="mt-4">
+                                <div className="table h-[30vh]">
+                                    <div className="table-heading border-b-black">
+                                        <div className="ml-2 !py-[5px]">Input Files</div>
+                                        <div className="flex gap-2 ml-2 !py-[5px] mr-2">
+                                            <Button clickFn={() => console.log("click")} size="xs" styleClasses="!rounded-none border-[#007791] bg-[#007791] text-white">Delete Files</Button>
+                                            <Button clickFn={() => console.log("click")} size="xs" styleClasses="!rounded-none border-[#007791] bg-[#007791] text-white">Add File</Button>
+                                        </div>
+                                    </div>
+                                    <div className="table-heading">
+                                        <div style={{ width: "3%" }} className="border-black border-r !py-[5px]">&nbsp;</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">File Name</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">Description</div>
+                                        <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">Lines</div>
+                                        <div style={{ width: "25%" }} className=" ml-2 !py-[5px]">Date Uploaded</div>
+                                    </div>
+                                    <div className="table-body">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* output files table */}
+                            <div className="mt-2">
+                                    <div className="table h-[30vh]">
+                                        <div className="table-heading border-b-black">
+                                            <div className="ml-2 !py-[5px]">Expected Output Files</div>
+                                            <div className="flex gap-2 ml-2 !py-[5px] mr-2">
+                                                <Button clickFn={() => console.log("click")} size="xs" styleClasses="!rounded-none border-[#007791] bg-[#007791] text-white">Delete Files</Button>
+                                                <Button clickFn={() => console.log("click")} size="xs" styleClasses="!rounded-none border-[#007791] bg-[#007791] text-white">Add File</Button>
+                                            </div>
+                                        </div>
+                                        <div className="table-heading">
+                                            <div style={{ width: "3%" }} className="border-black border-r !py-[5px]">&nbsp;</div>
+                                            <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">File Name</div>
+                                            <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">Description</div>
+                                            <div style={{ width: "25%" }} className="border-black border-r ml-2 !py-[5px]">Lines</div>
+                                            <div style={{ width: "25%" }} className=" ml-2 !py-[5px]">Date Uploaded</div>
+                                        </div>
+                                        <div className="table-body">
+                                            
+                                        </div>
+                                    </div>
+                            </div>
+
+                            {/* buttons */}
+                            <div className="flex justify-end gap-2">
+                                {selectedJob ? (
+                                    <Button size="sm" clickFn={() => handleDeleteJob(selectedJob._id)} styleClasses="btn-accent !rounded-sm text-white">Delete Job</Button>
+                                ): null}
+                                <Button size="sm" clickFn={() => console.log("clicked")} styleClasses="btn-accent !rounded-sm text-white">Save Job</Button>
+                            </div>
+
+                            {/* <div className="flex">
+                                <div className="w-[50%] flex items-center">
+                                    <Select disabled={loadingProjects  || step > 0} value={wizardDetails.project || null} options={getProjectOptions(projects)} placeholder="Select a project" changeFn={(e:any) => onValueChange("project", e)}/>
+                                    {loadingProjects ? (
+                                        <div className="ml-2">
+                                            <AiOutlineLoading3Quarters color="#036ca1" className="animate-spin"/>
+                                        </div>
+                                    ) : ""}
+
+                                </div>
+
+                                <div className="w-[50%] ml-5 flex items-center">
+                                    <Select disabled={loadingVariables  || step > 0} value={wizardDetails.variable || null} options={getVariableOptions()} placeholder="Select variable" changeFn={(e:any) => onValueChange("variable", e)}/>
+                                    {loadingVariables ? (
+                                        <div className="ml-2">
+                                            <AiOutlineLoading3Quarters color="#036ca1" className="animate-spin"/>
+                                        </div>
+                                    ) : ""}
+
+                                </div>
+
+                            </div> */}
 
                         </div>
+                        {/* <div className="wizard-conatiner"> */}
+                            {/* <ul className="steps w-full mx-auto">
+                                <li className={`step text-xs ${step > 0 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 1 (Business Rules Generation)`}</span></li>
+                                <li className={`step text-xs ${step > 1 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 2 (Data Processing Summary)`}</span></li>
+                                <li className={`step text-xs ${step > 2 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 3 (First HB Code)`}</span></li>
+                                <li className={`step text-xs ${step > 3 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 4 (Refined HB Code)`}</span></li>
+                                <li className={`step text-xs ${step > 4 ? "step-primary" : ""}`}><span className=" text-xs">{`Step 5 (Final HB Code)`}</span></li>
+                            </ul> */}
+                        
+                            {/* {loadingApiRequest ? (
+                                <div className="h-[40vh] mt-2 flex justify-around items-center">
+                                    <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                </div>
+                            ) :  (
+                                <div className="border bg-base-100 mt-4">
+                                    <div className="w-tc-editor-var"> </div>
+                                    {getWizardComponent(step)}
+                                </div>
+                                )}     */}
+
+
+                            {/* <div className="flex justify-between mt-3">
+                                {step >= 2 ? (
+                                    <Button variant="primary" size="sm" styleClasses={`ml-2 !text-xs ${loadingApiRequest || loadingProjects ? "btn-disabled" : ""}`} clickFn={decrementStep}>Previous</Button>
+                                ) : <div></div>}
+                                <div>
+                                    {step >= 1 ? (
+                                        <Button variant="primary" size="sm" styleClasses={`ml-2 !text-xs ${loadingApiRequest || loadingProjects ? "btn-disabled" : ""}`} clickFn={downloadFile}>Download</Button>
+
+                                    ) : null}
+
+                                    {step <= 4 ? (
+                                        <Button variant="primary" size="sm" styleClasses={`ml-2 !text-xs ${loadingApiRequest || loadingProjects ? "btn-disabled" : ""}`} clickFn={incrementStep}>Next</Button>
+                                    ) : null}
+
+                                    {step === 5 ? (
+                                        <Button variant="primary" size="sm" styleClasses={`ml-2 !text-xs ${loadingApiRequest || loadingProjects ? "btn-disabled" : ""}`} clickFn={() => navigate("/jobs")}>Save</Button>
+                                    ) : null}
+                                    
+
+
+                                </div>
+                            </div> */}
+                        {/* </div> */}
                     </div>
                 </div>
+            )}
+                
+
+
             </div>
-        </div>
-
-
-        </div>
 
 
             {/* <div className="w-full">

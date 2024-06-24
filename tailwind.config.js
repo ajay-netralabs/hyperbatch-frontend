@@ -19,6 +19,7 @@ export default {
           primary: "#106c98",
           secondary: "teal",
           "base-300": "#f6f7fb",
+          accent: "#ff7518",
         },
       },
     ],

@@ -13,6 +13,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import Cookies from 'universal-cookie';
 import { addFetch } from "../../store/slices/fetchedResources";
+import { Checkbox } from '@mantine/core';
 
  
 const ProjectHome = () => {
@@ -28,30 +29,33 @@ const ProjectHome = () => {
     const alreadyFetchedProjects = useSelector((state:any) => state.fetchedResources.projects)
 
 
+    const [selectedProject, setSelectedProject] = useState<any|null>(null)
+
     const [loading, setLoading] = useState(false)
 
-    const fetchProjects = async () => {
-        try {
-            setLoading(true)
-            const AllProjects = await getAllProjects(token); 
-            if (Array.isArray(AllProjects)) {
-                dispatch(addProject(AllProjects));
-                dispatch(addFetch("projects"))
-            } else {
-                toast.error(AllProjects.message || "Unexpected error occurred.");
-            }
-            setLoading(false)
-        } catch (error) {
-            toast.error("Unexpected Error, please contact support.")
-            console.error('Error fetching projects:', error);
-            setLoading(false)
-        }
-    };
+    // const fetchProjects = async () => {
+        // try {
+        //     setLoading(true)
+        //     const AllProjects = await getAllProjects(token); 
+        //     if (Array.isArray(AllProjects)) {
+        //         dispatch(addProject(AllProjects));
+        //         dispatch(addFetch("projects"))
+        //     } else {
+        //         toast.error(AllProjects.message || "Unexpected error occurred.");
+        //     }
+        //     setLoading(false)
+        // } catch (error) {
+        //     toast.error("Unexpected Error, please contact support.")
+        //     console.error('Error fetching projects:', error);
+        //     setLoading(false)
+        // }
+    // };
 
-    useEffect(() => {
-        if(!projects.length && !alreadyFetchedProjects) fetchProjects();
-    }, []);
-      
+    // useEffect(() => {
+    //     if(!projects.length && !alreadyFetchedProjects) fetchProjects();
+    // }, []);
+    
+    console.log("selectedProject", selectedProject)
 
     const handleRowClick = (id:string) => {
         dispatch(addCurrentProject(id))
@@ -82,23 +86,55 @@ const ProjectHome = () => {
         }
     }
 
+    const handleSelectProject = (selected:boolean, project:any) => {
+        if(selected){
+            setSelectedProject(project)
+        }else{
+            setSelectedProject(null)
+        }
+    }
+
     return (
         <div className={`project-container ${open ? "sidenav-open" : ""}`}>
             <div className="w-full flex flex-col justify-center item-center mx-auto" >
-                <div className="flex justify-between">
-                    <h1 className="top-heading"></h1>
-                    <button
-                        className="btn btn-md btn-primary ml-10 !text-xs"
-                    onClick={() => navigate("/projects/create")}
-                    >
-                        <FaPlus size={14} className="" />
-                        <b>Create Project</b>
-                    </button>
+                <div className="flex justify-center mt-3">
+                    <h1 className="top-heading font-semibold">PROJECTS</h1>
+                    {/* <div className="absolute right-0 my-auto">
+                        <button
+                            className={`btn btn-md btn-accent text-white !text-xs !rounded-sm ${selectedProject ? "" : "btn-disabled"}`}
+                        onClick={() => navigate("/projects/create")}
+                        >
+                            <b>Edit Project</b>
+                        </button>
+                        <button
+                            className="btn btn-md btn-accent text-white ml-2 !text-xs !rounded-sm"
+                        onClick={() => navigate("/projects/create")}
+                        >
+                            <b>Add Project</b>
+                        </button>
+
+                    </div> */}
                 </div>
+
+                <div className="flex justify-end">
+                        <button
+                            className={`btn btn-md btn-accent text-white !text-xs !rounded-sm ${selectedProject ? "" : "btn-disabled"}`}
+                        onClick={() => handleRowClick(selectedProject._id)}
+                        >
+                            <b>Edit Project</b>
+                        </button>
+                        <button
+                            className="btn btn-md btn-accent text-white ml-2 !text-xs !rounded-sm"
+                        onClick={() => navigate("/projects/create")}
+                        >
+                            <b>Add Project</b>
+                        </button>
+
+                    </div>
 
                 <div className="table-holder">
                     <div className="table">
-                        <div className="table-heading">
+                        <div className="table-heading bg-table-heading">
                             {/* <div style={{ width: "5%" }}>
                                 <Checkbox
                                     color="#036ca1"
@@ -110,20 +146,21 @@ const ProjectHome = () => {
                                 //   }
                                 />
                             </div> */}
-                            <div style={{ width: "25%" }}>Project Name</div>
-                            <div style={{ width: "25%" }}>
+                            <div style={{ width: "3%" }} className="border-black border-r">&nbsp;</div>
+                            <div style={{ width: "25%" }} className="border-black border-r ml-2">Project Name</div>
+                            <div style={{ width: "25%" }} className="border-black border-r ml-2">
                                 Project Description
                             </div>
-                            <div style={{ width: "25%" }}>
+                            <div style={{ width: "25%" }} className="border-black border-r ml-2">
                                 Project File
                             </div>
 
-                            <div style={{ width: "20%" }}>
+                            <div style={{ width: "20%" }} className="border-black border-r ml-2">
                                 Date Created
                             </div>
-                            <div style={{ width:"5%" }} className="text-center">
+                            {/* <div style={{ width:"5%" }} className="text-center">
                                 Actions
-                            </div>
+                            </div> */}
                         </div>
 
 
@@ -137,49 +174,59 @@ const ProjectHome = () => {
                         <div className="table-body">
                             {projects.length ? projects.map((item : any) => (
                                 <div className="table-data" key={item.project_id}>
-                                    {/* <div style={{ width: "5%" }}>
-                                        <Checkbox 
-                                            onClick={(e:any) => e.stopPropagation()}
-                                            color="#036ca1"
-                                        />
-                                    </div> */}
-                                    <div
-                                        style={{ width: "25%" , color: "#1f78a5"}} className="font-semibold hover:cursor-pointer" onClick={() => handleRowClick(item.project_id)}
-                                    // className="table-data__title flex items-center"
+                                    <div className="table-data-container border-black border-r " style={{ width: "3%" , color: "#1f78a5"}}>
+                                        <div className="mx-auto">
+                                            <Checkbox
+                                                color="rgba(0, 0, 0, 1)"
+                                                radius="xs"
+                                                variant="outline"
+                                                checked={selectedProject?._id === item._id}
+                                                disabled={selectedProject && selectedProject?._id !== item._id }
+                                                onChange={(event) => handleSelectProject(event.currentTarget.checked, item)}
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <div style={{ width: "25%" , color: "#1f78a5"}} className="table-data-container font-semibold hover:cursor-pointer border-black border-r ml-2">
+                                        <div
+                                             className="" onClick={() => handleRowClick(item.project_id)}
 
-                                    >
-                                        {item.name}
+                                        >
+                                            {item.name}
+                                        </div>
                                     </div>
 
-                                    <div
-                                        style={{ width: "25%" }} className="text-xs"
-                                    // className="table-data__description flex items-center"
+                                    <div style={{ width: "25%" }} className="table-data-container text-xs border-black border-r ml-2">
+                                        <div
+                                             className=""
 
-                                    >
-                                        {item.description}
+                                        >
+                                            {item.description}
+                                        </div>
                                     </div>
 
-                                    <div
-                                        style={{ width: "25%" }} className="text-xs"
-                                    // className="table-data__file flex items-center"
+                                    <div style={{ width: "25%" }} className="table-data-container text-xs border-black border-r ml-2">
+                                        <div
+                                             className=""
 
-                                    >
-                                        {item.file_type === "aws" ? item.file.split("/")[1] : "locally uploaded"}
+                                        >
+                                            {item.file_type === "aws" ? item.file.split("/")[1] : "locally uploaded"}
+                                        </div>
                                     </div>
 
-                                    <div
-                                        style={{ width: "20%" }} className="text-xs"
-                                    // className="table-data__date flex items-center"
+                                    <div  style={{ width: "20%" }} className="table-data-container text-xs ml-2">
+                                        <div
+                                            className=""
 
-                                    >
-                                        {item.date_created}
+                                        >
+                                            {item.date_created}
+                                        </div>
                                     </div>
-                                    <Menu withArrow arrowPosition="center" shadow="md"> 
+                                    {/* <Menu withArrow arrowPosition="center" shadow="md"> 
                                                 <Menu.Target>
                                             <div
                                                 style={{ width: "5%" }} className="flex justify-center cursor-pointer hover:scale-105 transition"
                                             >
-                                                {/* onClick={() => handleDeleteProject(item.id)} */}
                                                 <HiOutlineDotsHorizontal />
                                             </div>
                                             </Menu.Target>
@@ -188,7 +235,7 @@ const ProjectHome = () => {
                                                     Delete
                                                 </Menu.Item>
                                             </Menu.Dropdown>
-                                            </Menu>
+                                    </Menu> */}
                                 </div>
 
 

@@ -7,7 +7,7 @@ import { MantineProvider } from '@mantine/core';
 import WizardHome from './pages/wizard/WizardHome'
 // import { CreateWizard, Dashboard } from './pages';
 import ProjectHome from './pages/Projects/ProjectHome'
-import { CreateProject, CreateVariable, CreateWizard, Dashboard, Login, NotFound, Signup, VariableHome } from './pages';
+import { CreateProject, CreateVariable, CreateWizard, Dashboard, Login, NotFound, RunJob, Signup, VariableHome } from './pages';
 
 import { Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
@@ -39,6 +39,7 @@ function App() {
           <Route path="/" element={<Protected children={<Dashboard />} />} />
           <Route path="/jobs/create" element={<Protected children={<CreateWizard />}/>} />
           <Route path="/jobs" element={<Protected children={<WizardHome />}/>} />
+          <Route path="/jobs/run/:id" element={<Protected children={<RunJob />} />} />
           <Route path="/projects/create" element={<Protected children={<CreateProject />}/>} />
           <Route path="/projects" element={<Protected children={<ProjectHome />}/>} />
           <Route path="/variables" element={<Protected children={<VariableHome />}/>} />
