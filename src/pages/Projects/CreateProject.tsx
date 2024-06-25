@@ -78,6 +78,8 @@ export const CreateProject = () => {
         }
     })
 
+    // console.log("project data: ", projectData)
+
     const [loading, setLoding] = useState(false)
 
     const [awsDir, setAwsDir]:any = useState({})
@@ -121,7 +123,7 @@ export const CreateProject = () => {
         }
     }
 
-    console.log("selected input files", selectedInputFiles)
+    // console.log("selected input files", selectedInputFiles)
 
     const handleSelectOutputFile = (check:boolean, id:string) => {
         if(check){
@@ -425,8 +427,6 @@ export const CreateProject = () => {
         navigate("/projects")
     }
 
-    console.log("project data", projectData)
-
     const handleFileUpload = async (e:any) => {
         const file = e.target.files[0]
 
@@ -448,9 +448,13 @@ export const CreateProject = () => {
         })
     }
 
+    const handleSetOutput = (e:any) => {
+        setOutputFile((state:any) => ({...state, file : e.target.value}));
+    }
+
     const FileOptions = [{ label: "AWS", value: "aws"}, { label: "Upload", value : "upload"}]
 
-    console.log("selected project", selectedProject)
+    // console.log("selected project", selectedProject)
 
     const handleAddFile = (type:string) => {
         if(type === "input"){
@@ -472,11 +476,13 @@ export const CreateProject = () => {
             setProjectData((state:any) => (
                 {...state, output_files : [...state.output_files, outputFile]}
             ))
-
+            console.log("Project data output files: ", projectData.output_files)
             setOutputFile(INITIAL_OUTPUT_FILE)
             outputFilesFunctions.close()
         }
     }
+
+    console.log("project data: ", projectData)
 
     return (
         <>
@@ -597,6 +603,7 @@ export const CreateProject = () => {
                                                          onChange={(e) => handleSelectInputFile(e.target.checked, file.id)}/>
                                                     </div>
                                                     <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                        <>{console.log("file: ", file)}</>
                                                         <p>{file.file}</p>
                                                     </div>
 
@@ -614,7 +621,7 @@ export const CreateProject = () => {
                                 </div>
                             </div>
                             <div className="flex justify-end mt-3">
-                                <Button size="sm" clickFn={() => console.log("clicked")} styleClasses="btn-accent !rounded-sm text-white">Save Project</Button>
+                                <Button size="sm" clickFn={() => handleCreateProject()} styleClasses="btn-accent !rounded-sm text-white">Save Project</Button>
                             {/* {selectedProject ? (<Button variant="primary" size="sm"  styleClasses={`${loading ? "btn-disabled" : ""} !text-xs`} clickFn={handleUpdateProject}>Update Project</Button>): (<Button variant="primary" size="sm" styleClasses={`${loading ? "btn-disabled" : ""} !text-xs`} clickFn={handleCreateProject}>Create Project</Button>)} */}
                             </div>
                         </div>
@@ -650,7 +657,7 @@ export const CreateProject = () => {
             <Modal opened={outputOpened} onClose={outputFilesFunctions.close} title="Add Output Files" centered size={"lg"}>
                 <div className="flex flex-col gap-4 mt-4">
                     <div className="flex gap-4">
-                        <Select placeholder="Select Folder" value={projectData.output_folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => setOutputFile((state:any) => ({...state, folder : e.target.value}))} />
+                        <Select placeholder="Select Folder" value={outputFile.folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => setOutputFile((state:any) => ({...state, folder : e.target.value}))} />
                         {/* <Select placeholder="Select File" value={projectData.output_file || null} options={getFileName(selectedFolder || projectData.folder)} changeFn={(e:any) => handleFilePath(e, "file")} /> */}
                         <Button variant="primary" size="sm" styleClasses="!h-fit" clickFn={fetchAwsDir}>
                             <div className={`${awsLoading ? "animate-spin" : ""}`}>
@@ -658,7 +665,7 @@ export const CreateProject = () => {
                             </div>
                         </Button>
                     </div>
-                    <InputText styleClass="input-sm" value={projectData.name} changeFn={(e:any) => setOutputFile((state:any) => ({...state, file : e.target.value}))}/>
+                    <InputText styleClass="input-sm" value={outputFile.file} changeFn={(e:any) => handleSetOutput(e)}/>
                 </div>
 
                 <div className="flex justify-end mt-8">
