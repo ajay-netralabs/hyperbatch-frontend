@@ -181,7 +181,7 @@ export const SideNav = () => {
         // </div>
 
         <div className={`sidenav-v2 font-medium shadow-md bg-base-100 flex flex-col w-[12%] h-full ${open ? "open" : ""}`}>
-            <div className="m-auto">
+            <div className="mx-auto mt-[200px]">
                 <div className="my-2 py-2 hover:cursor-pointer" onClick={() => handleMenuNavigation("projects")}>
                     <p className={`text-md ${activeMenu === "projects" ? "font-semibold" : ""}`}>Projects</p>
                 </div>

@@ -454,6 +454,12 @@ export const CreateProject = () => {
 
     const handleAddFile = (type:string) => {
         if(type === "input"){
+            // const { folder, file } = inputFile
+
+            // if(!folder){
+            //     toast.error("")
+            // }
+
             setProjectData((state:any) => (
                 {...state, input_files : [...state.input_files, inputFile]}
             ))
@@ -627,7 +633,7 @@ export const CreateProject = () => {
             <Modal opened={inputOpend} onClose={inputFilesFunctions.close} title="Add Input Files" centered size={"lg"}>
                 <div className="flex gap-4 mt-4">
                     <Select placeholder="Select Folder" value={inputFile.folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => setInputFile((state:any) => ({...state, folder : e.target.value}))} />
-                    <Select placeholder="Select File" value={inputFile.file || null} options={getFileName(selectedFolder || projectData.folder)} changeFn={(e:any) => setInputFile((state:any) => ({...state, file : e.target.value}))} />
+                    <Select placeholder="Select File" value={inputFile.file || null} options={getFileName(inputFile.folder || projectData.folder)} changeFn={(e:any) => setInputFile((state:any) => ({...state, file : e.target.value}))} />
                     <Button variant="primary" size="sm" styleClasses="!h-fit" clickFn={fetchAwsDir}>
                         <div className={`${awsLoading ? "animate-spin" : ""}`}>
                             <IoMdRefresh color="white"/>
