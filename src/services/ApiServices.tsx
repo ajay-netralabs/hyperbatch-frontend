@@ -99,9 +99,9 @@ export async function getAllProjects(token:string) {
 export async function createProject(
     project_name : string,
     project_description : string,
-    file : string,
     date_created : string,
-    file_type: string,
+    input_files: any[],
+    output_files: any[],
     token:string
   ) {
     try {
@@ -110,9 +110,9 @@ export async function createProject(
         body: JSON.stringify({
           project_name,
           project_description,
-          file,
+          input_files,
           date_created,
-          file_type
+          output_files
         }),
         headers: {
           "Content-Type": "application/json",

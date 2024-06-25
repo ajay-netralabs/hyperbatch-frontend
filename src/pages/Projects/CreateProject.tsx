@@ -293,7 +293,7 @@ export const CreateProject = () => {
 
     const handleCreateProject = async () => {
 
-      const { name, description, folder, file, date_created, file_type, fileByte } = projectData
+      const { name, description, date_created, input_files, output_files } = projectData
 
       if(!name){
         toast("Please enter project name")
@@ -305,41 +305,51 @@ export const CreateProject = () => {
         return
       }
 
-      if(!file_type){
-        toast("Please select a file type")
-        return
-      }
+    //   if(!file_type){
+    //     toast("Please select a file type")
+    //     return
+    //   }
 
-      let content;
-      if(file_type === "aws"){
-         // for aws, folder and file is required
-          if(!folder){
-            toast("Please select the input folder")
-            return
-          }
+    //   let content;
+    //   if(file_type === "aws"){
+    //      // for aws, folder and file is required
+    //       if(!folder){
+    //         toast("Please select the input folder")
+    //         return
+    //       }
     
-          if(!file){
-            toast("Please select the input file")
-            return
-          }
+    //       if(!file){
+    //         toast("Please select the input file")
+    //         return
+    //       }
 
-          content = `${folder}/${file}`
-      }
+    //       content = `${folder}/${file}`
+    //   }
 
-      if(file_type === "upload"){
-        // file is required
-        if(!fileByte){
-            toast("Please select a file")
-            return
-        }
+    //   if(file_type === "upload"){
+    //     // file is required
+    //     if(!fileByte){
+    //         toast("Please select a file")
+    //         return
+    //     }
 
-        content = fileByte
-      }
+    //     content = fileByte
+    //   }
+
+    if (!input_files || input_files.length === 0){
+        toast("please select at least one input file.")
+        return
+    }
+
+    if (!output_files || output_files.length === 0){
+        toast("please select at least one output file.")
+        return
+    }
 
 
 
       setLoding(true)
-      const resp:any = await createProject(name, description, content, date_created, file_type,token)
+      const resp:any = await createProject(name, description, date_created,input_files, output_files,token)
       const jsonResp = await resp.json()
 
       if(jsonResp.error){
