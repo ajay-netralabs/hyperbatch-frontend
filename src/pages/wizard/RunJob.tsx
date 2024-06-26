@@ -152,7 +152,7 @@ export const RunJob = () => {
                 case 1 : {
                     // check if business logic is already present and has not changed
                     const texts = getEditorData(businessLogic)
-                    const editorTexts = getEditorData(convertToEditorData(currentJob.businessResp || ""))
+                    const editorTexts = getEditorData(convertToEditorData(currentJob.business_logic || ""))
                     // const editorTexts = wizardDetails.businessResp
 
                     if(texts && editorTexts && texts === editorTexts){
@@ -241,8 +241,7 @@ export const RunJob = () => {
                     // const editorTexts = wizardDetails.programSummaryResp                    
                     // if previous step data has not changed and current data is present, don't fetch
                     // const currentStepData = getEditorData(hyperbatchCode)
-                    const currentStepData = currentJob.hyperBatchResp
-
+                    const currentStepData = currentJob.sql_code
                     
                     if(currentStepData && oldText && editorTexts && oldText === editorTexts){
                         return
