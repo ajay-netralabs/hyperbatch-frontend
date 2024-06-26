@@ -12,7 +12,9 @@ import { GET_ALL_JOBS,
   GET_ALL_VARIABLES,
 CREATE_VARIABLE,
 CREATE_JOB,
-UPDATE_JOB } 
+UPDATE_JOB,
+SELF_ASSESS,
+AUTOFIX } 
     from "./urls";
 
 interface IJobs {
@@ -465,6 +467,58 @@ interface VarListItem {
           description,
           var_list,
           date_created
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Cookies: `session_id=${token}`,
+        },
+        credentials: "include",
+      });
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  export async function selfAssessment(
+    final_sql_code : string,
+    job_id : string,
+    token:string
+  ) {
+    try {
+      const res = fetch(SELF_ASSESS, {
+        method: "POST",
+        body: JSON.stringify({
+          final_sql_code,
+          job_id
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Cookies: `session_id=${token}`,
+        },
+        credentials: "include",
+      });
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  export async function autoFix(
+    final_sql_code : string,
+    job_id : string,
+    feedback: string,
+    suggesstions: string,
+    token:string
+  ) {
+    try {
+      const res = fetch(AUTOFIX, {
+        method: "POST",
+        body: JSON.stringify({
+          final_sql_code,
+          job_id,
+          feedback,
+          suggesstions
         }),
         headers: {
           "Content-Type": "application/json",
