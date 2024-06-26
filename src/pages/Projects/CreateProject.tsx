@@ -148,6 +148,13 @@ export const CreateProject = () => {
                 return;
             }
 
+            // don't allow delete if only 1 file is available
+
+            if(projectData.input_files.length < 2){
+                toast.error("You need to have at least 1 file")
+                return;
+            }
+
             const updateProject = {
                 project_id : projectData.project_id,
                 project_name : projectData.name,
@@ -185,6 +192,13 @@ export const CreateProject = () => {
 
             if(!selectedOutputFiles.length){
                 toast.error("At least select 1 file")
+                return;
+            }
+
+             // don't allow delete if only 1 file is available
+
+             if(projectData.output_files.length < 2){
+                toast.error("You need to have at least 1 file")
                 return;
             }
 
@@ -435,7 +449,7 @@ export const CreateProject = () => {
     }
 
     const handleUpdateProject = async () => {
-        const {name, description, folder, file, date_created, file_type, fileByte } = projectData
+        const {name, description, folder, file, date_created, file_type, fileByte, input_files, output_files } = projectData
         
         if(!name){
           toast("Please enter project name")
@@ -447,35 +461,35 @@ export const CreateProject = () => {
           return
         }
   
-        let content;
-        if(file_type === "aws"){
-           // for aws, folder and file is required
-            if(!folder){
-              toast("Please select the input folder")
-              return
-            }
+        // let content;
+        // if(file_type === "aws"){
+        //    // for aws, folder and file is required
+        //     if(!folder){
+        //       toast("Please select the input folder")
+        //       return
+        //     }
       
-            if(!file){
-              toast("Please select the input file")
-              return
-            }
+        //     if(!file){
+        //       toast("Please select the input file")
+        //       return
+        //     }
   
-            content = `${folder}/${file}`
-        }
+        //     content = `${folder}/${file}`
+        // }
   
-        if(file_type === "upload"){
-          // file is required
-          if(!fileByte){
-              toast("Please select a file")
-              return
-          }
+        // if(file_type === "upload"){
+        //   // file is required
+        //   if(!fileByte){
+        //       toast("Please select a file")
+        //       return
+        //   }
   
-          content = fileByte
-        }
+        //   content = fileByte
+        // }
   
   
         setLoding(true)
-        const resp:any = await updateProject(selectedProjectId, name, description, content, date_created, file_type,token)
+        const resp:any = await updateProject(selectedProjectId, name, description, date_created, input_files, output_files ,token)
         const jsonResp = await resp.json()
   
         if(jsonResp.error){
@@ -487,9 +501,9 @@ export const CreateProject = () => {
             project_id: selectedProjectId,
             name,
             description,
-            file: content,
             date_created,
-            file_type
+            input_files,
+            output_files
 
         }))
         setLoding(false)
@@ -550,8 +564,6 @@ export const CreateProject = () => {
             outputFilesFunctions.close()
         }
     }
-
-    console.log("project data: ", projectData)
 
     return (
         <>
@@ -677,10 +689,10 @@ export const CreateProject = () => {
                                             </div>
                                         ) : <>
                                         {projectData.output_files.map((file:any, index:number) => (
-                                                <div className="table-data" key={index}>
+                                            <div className="table-data" key={index}>
                                                     <div style={{ width: "3%" }} className="table-data-container border-black border-r !py-[5px]  flex justify-center">
                                                         <Checkbox 
-                                                         checked={selectedInputFiles.includes(file.id)}
+                                                         checked={selectedOutputFiles.includes(file.id)}
                                                          onChange={(e) => handleSelectOutputFile(e.target.checked, file.id)}/>
                                                     </div>
                                                     <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
@@ -726,7 +738,8 @@ export const CreateProject = () => {
                                 </div>
                             </div>
                             <div className="flex justify-end mt-3">
-                                <Button size="sm" clickFn={() => handleCreateProject()} styleClasses="btn-accent !rounded-sm text-white">Save Project</Button>
+                                
+                                <Button size="sm" clickFn={() =>{selectedProject ? handleUpdateProject()  :  handleCreateProject()}} styleClasses="btn-accent !rounded-sm text-white">Save Project</Button>
                             {/* {selectedProject ? (<Button variant="primary" size="sm"  styleClasses={`${loading ? "btn-disabled" : ""} !text-xs`} clickFn={handleUpdateProject}>Update Project</Button>): (<Button variant="primary" size="sm" styleClasses={`${loading ? "btn-disabled" : ""} !text-xs`} clickFn={handleCreateProject}>Create Project</Button>)} */}
                             </div>
                         </div>
@@ -780,16 +793,3 @@ export const CreateProject = () => {
         </>
     )
 }
-
-
-// const inputFilesModal = (opened:boolean, close:any) => {
-//     return (
-//         <>
-//           <Modal opened={opened} onClose={close} title="Authentication" centered>
-//             {/* Modal content */}
-//           </Modal>
-    
-//           {/* <Button onClick={open}>Open centered Modal</Button> */}
-//         </>
-//       );
-//     }

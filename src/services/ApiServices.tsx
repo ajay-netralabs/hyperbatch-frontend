@@ -131,9 +131,9 @@ export async function createProject(
     project_id : string,
     project_name : string,
     project_description : string,
-    file : string,
     date_created : string,
-    file_type : string,
+    input_files : any[],
+    output_files : [],
     token : string
   ) {
     try {
@@ -143,9 +143,9 @@ export async function createProject(
           project_id,
           project_name,
           project_description,
-          file,
           date_created,
-          file_type
+          input_files,
+          output_files
         }),
         headers: {
           "Content-Type": "application/json",
