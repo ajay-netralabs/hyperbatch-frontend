@@ -44,10 +44,12 @@ export const RunJob = () => {
         return job ? job : {} 
     })
     const [step, setStep] = useState<number>(() => {
-        if(currentJob._id){
+        if(currentJob.job_id){
             return 1
         }else return 0
     })
+
+    const [loadingPage, setLoadingPage] = useState(false)
 
     const [loadingApiRequest, setLoadingApiRequest] = useState(false)
 
@@ -518,18 +520,27 @@ export const RunJob = () => {
     const handleSave = async () => {
         // save output to aws
         const { job_id} = currentJob
-        const resp = await saveCode(finalCode, job_id, token)
-        const jsonResp = await resp?.json()
 
-        if(jsonResp.error){
-            toast(jsonResp.message)
-            setLoadingApiRequest(false)
-            return
-        }
-        else{
-            setLoadingApiRequest(false)
-            dispatch(updateOne({job_id : currentJob.job_id, final_code : finalCode}))
-            navigate("/jobs")
+        try{
+            setLoadingPage(true)
+            const resp = await saveCode(finalCode, job_id, token)
+            const jsonResp = await resp?.json()
+    
+            if(jsonResp.error){
+                toast(jsonResp.message)
+                setLoadingApiRequest(false)
+                setLoadingPage(false)
+                return
+            }
+            else{
+                setLoadingApiRequest(false)
+                dispatch(updateOne({job_id : currentJob.job_id, final_code : finalCode}))
+                setLoadingPage(false)
+                navigate("/jobs")
+            }
+        }catch{
+            toast.error("Something went wrong")
+            setLoadingPage(false)
         }
 
     }
@@ -621,135 +632,144 @@ export const RunJob = () => {
 
     return (
         <div className={`project-container ${open ? "sidenav-open" : ""}`}>
-           <div className="flex justify-center">
-                <h1 className="top-heading font-semibold">Run Job</h1>
-           </div>
-           <div className="job-info-container flex flex-col gap-2 mt-2">
-                {/* project name */}
-                <div className="project-name-container flex gap-2">
-                    <p className="font-semibold text-sm">PROJECT :</p>
-                    <p className="text-sm">{currentJob?.project_name}</p>
+            {loadingPage ? (
+                <div className="h-[40vh] mt-2 flex justify-around items-center">
+                <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
                 </div>
-
-                {/* job name */}
-                <div className="job-name-container flex gap-2">
-                    <p className="font-semibold text-sm">JOB :</p>
-                    <p className="text-sm">{currentJob?.name}</p>
-                </div>
-
-                {/* job description */}
-                <div className="job-desc-container flex gap-2">
-                    <p className="font-semibold text-sm">DESCRIPTION :</p>
-                    <p className="text-sm">{currentJob?.description}</p>
-                </div>
-           </div>
-
-           <div className="steps-container mt-5">
-                <ul className="steps w-full mx-auto">
-                    <li className={`step text-xs ${step > 0 ? "step-primary" : ""}`}></li>
-                    <li className={`step text-xs ${step > 1 ? "step-primary" : ""}`}></li>
-                    <li className={`step text-xs ${step > 2 ? "step-primary" : ""}`}></li>
-                    <li className={`step text-xs ${step > 3 ? "step-primary" : ""}`}></li>
-                    <li className={`step text-xs ${step > 4 ? "step-primary" : ""}`}></li>
-                    <li className={`step text-xs ${step > 5 ? "step-primary" : ""}`}></li>
-                </ul>
-            </div>
-            <>{console.log("step", step)}</>
-            {/* editors */}
-            <div className="editor-container flex justify-between gap-4 mt-5">
-                { step <= 5 ? (
-                    <>
-                        <div className="w-[50%] border border-black bg-base-100 ">
-                            <div className="border-b border-black p-2">Input Files :</div>
-                            <div className="">
-                                {loadingApiRequest ? (
-                                        <div className="h-[40vh] mt-2 flex justify-around items-center">
-                                            <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
-                                        </div>
-                                    ) :  (
-                                        <>
-                                            {getCurrentEditor(step)}
-                                        </>
-                                        )}    
-                            </div>
-                        </div>
-
-                        <div className="w-[50%] border border-black bg-base-100">
-                            <div className="border-b border-black p-2">Expected Output Files :</div>
-                            <div className="">
-                                {step === 5 && loadingApiRequest ? (
-                                    <div className="h-[40vh] mt-2 flex justify-around items-center">
-                                            <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
-                                        </div>
-                                ): <>
-                                    {getFinalOutputEditor()}
-                                </>}
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="w-[70%] border border-black bg-base-100 ">
-                        <>{console.log("step", step)}</>
-                            <div className="border-b border-black p-2">HYPERBATCH CODE :</div>
-                            <div>
-                                {getFinalOutputEditor()}
-                            </div>
-                        </div>
-                        <div className="w-[30%] flex flex-col gap-2 ">
-                            <div className="border border-black bg-base-100">
-                                <div className="border-b border-black p-2">STATUS :</div>
-                                <div className="h-[40vh] flex flex-col justify-between gap-2">
-                                    {loadingSuggestion ? (
-                                         <div className="h-[40vh] mt-2 flex justify-around items-center">
-                                            <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
-                                        </div>
-                                    ) : (
-                                        <div className="p-2 overflow-y-scroll">{suggestion}</div>
-                                    )}
-                                    <div className="flex flex-col gap-1">
-                                        <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion || disableAutoFix ? "btn-disabled" : ""}`} clickFn={modalFunctions.open}>Accept Recommendations</Button>
-                                        <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion ? "btn-disabled" : ""}`} clickFn={handleSelfAssesment}>Suggest Fixes</Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                )}
-            </div>
-
-            {/* history details */}
-            <div className="history-container h-[20vh] border border-black bg-base-100 mt-5">
-               <div className="border-b border-black p-2">
-                    History :
-               </div>
-
-               <div className="history-table">
-                    <div className="table-heading bg-base-100 text-black border-b border-black">
-                        <div style={{ width: "25%", padding: "5px 0" }} className="border-black border-r ml-2">Date</div>
-                        <div style={{ width: "25%", padding: "5px 0" }} className="border-black border-r ml-2">Time</div>
-                        <div style={{ width: "50%", padding: "5px 0" }} className="ml-2">Task</div>
-                    </div>
-               </div>             
-            </div>
-
-            {/* buttons */}
-            <div className="mt-5 flex justify-between">
+            ) : (
                 
-                    <Button clickFn={decrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MIN_STEP + 1 ? "btn-disabled" : ""}`}>previous</Button> 
+                <>
+                    <div className="flex justify-center">
+                            <h1 className="top-heading font-semibold">Run Job</h1>
+                    </div>
+                    <div className="job-info-container flex flex-col gap-2 mt-2">
+                            {/* project name */}
+                            <div className="project-name-container flex gap-2">
+                                <p className="font-semibold text-sm">PROJECT :</p>
+                                <p className="text-sm">{currentJob?.project_name}</p>
+                            </div>
 
-                <div className="flex gap-2">
-                   
-                    <Button clickFn={downloadFile} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Download</Button>
-                   
-                   {step < MAX_STEP ? (
-                       <Button clickFn={incrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MAX_STEP ? "btn-disabled" : ""}`}>{step === 0 ? "Run Job" : "Next"}</Button>
+                            {/* job name */}
+                            <div className="job-name-container flex gap-2">
+                                <p className="font-semibold text-sm">JOB :</p>
+                                <p className="text-sm">{currentJob?.name}</p>
+                            </div>
 
-                   ) : (
-                    <Button clickFn={() => {handleSave()}} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Save</Button>
-                   )}
-                </div>
-            </div>
+                            {/* job description */}
+                            <div className="job-desc-container flex gap-2">
+                                <p className="font-semibold text-sm">DESCRIPTION :</p>
+                                <p className="text-sm">{currentJob?.description}</p>
+                            </div>
+                    </div>
+
+                    <div className="steps-container mt-5">
+                            <ul className="steps w-full mx-auto">
+                                <li className={`step text-xs ${step > 0 ? "step-primary" : ""}`}></li>
+                                <li className={`step text-xs ${step > 1 ? "step-primary" : ""}`}></li>
+                                <li className={`step text-xs ${step > 2 ? "step-primary" : ""}`}></li>
+                                <li className={`step text-xs ${step > 3 ? "step-primary" : ""}`}></li>
+                                <li className={`step text-xs ${step > 4 ? "step-primary" : ""}`}></li>
+                                <li className={`step text-xs ${step > 5 ? "step-primary" : ""}`}></li>
+                            </ul>
+                        </div>
+                        <>{console.log("step", step)}</>
+                        {/* editors */}
+                        <div className="editor-container flex justify-between gap-4 mt-5">
+                            { step <= 5 ? (
+                                <>
+                                    <div className="w-[50%] border border-black bg-base-100 ">
+                                        <div className="border-b border-black p-2">Input Files :</div>
+                                        <div className="">
+                                            {loadingApiRequest ? (
+                                                    <div className="h-[40vh] mt-2 flex justify-around items-center">
+                                                        <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                                    </div>
+                                                ) :  (
+                                                    <>
+                                                        {getCurrentEditor(step)}
+                                                    </>
+                                                    )}    
+                                        </div>
+                                    </div>
+
+                                    <div className="w-[50%] border border-black bg-base-100">
+                                        <div className="border-b border-black p-2">Expected Output Files :</div>
+                                        <div className="">
+                                            {step === 5 && loadingApiRequest ? (
+                                                <div className="h-[40vh] mt-2 flex justify-around items-center">
+                                                        <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                                    </div>
+                                            ): <>
+                                                {getFinalOutputEditor()}
+                                            </>}
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="w-[70%] border border-black bg-base-100 ">
+                                    <>{console.log("step", step)}</>
+                                        <div className="border-b border-black p-2">HYPERBATCH CODE :</div>
+                                        <div>
+                                            {getFinalOutputEditor()}
+                                        </div>
+                                    </div>
+                                    <div className="w-[30%] flex flex-col gap-2 ">
+                                        <div className="border border-black bg-base-100">
+                                            <div className="border-b border-black p-2">STATUS :</div>
+                                            <div className="h-[40vh] flex flex-col justify-between gap-2">
+                                                {loadingSuggestion ? (
+                                                    <div className="h-[40vh] mt-2 flex justify-around items-center">
+                                                        <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-2 overflow-y-scroll">{suggestion}</div>
+                                                )}
+                                                <div className="flex flex-col gap-1">
+                                                    <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion || disableAutoFix ? "btn-disabled" : ""}`} clickFn={modalFunctions.open}>Accept Recommendations</Button>
+                                                    <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion ? "btn-disabled" : ""}`} clickFn={handleSelfAssesment}>Suggest Fixes</Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* history details */}
+                        <div className="history-container h-[20vh] border border-black bg-base-100 mt-5">
+                        <div className="border-b border-black p-2">
+                                History :
+                        </div>
+
+                        <div className="history-table">
+                                <div className="table-heading bg-base-100 text-black border-b border-black">
+                                    <div style={{ width: "25%", padding: "5px 0" }} className="border-black border-r ml-2">Date</div>
+                                    <div style={{ width: "25%", padding: "5px 0" }} className="border-black border-r ml-2">Time</div>
+                                    <div style={{ width: "50%", padding: "5px 0" }} className="ml-2">Task</div>
+                                </div>
+                        </div>             
+                        </div>
+
+                        {/* buttons */}
+                        <div className="mt-5 flex justify-between">
+                            
+                                <Button clickFn={decrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MIN_STEP + 1 ? "btn-disabled" : ""}`}>previous</Button> 
+
+                            <div className="flex gap-2">
+                            
+                                <Button clickFn={downloadFile} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Download</Button>
+                            
+                            {step < MAX_STEP ? (
+                                <Button clickFn={incrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MAX_STEP ? "btn-disabled" : ""}`}>{step === 0 ? "Run Job" : "Next"}</Button>
+
+                            ) : (
+                                <Button clickFn={() => {handleSave()}} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Save</Button>
+                            )}
+                            </div>
+                        </div>
+                </>
+            )}
 
 
             <Modal opened={opened} onClose={modalFunctions.close} title="Suggest Fixes" centered size={"70%"}>
