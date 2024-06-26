@@ -86,6 +86,7 @@ const WizardHome = () => {
 
 
     const handleRowClick = (id: string) => {
+        console.log("id", id)
         dispatch(addCurrentJob(id))
         navigate("/jobs/create")
 
@@ -117,7 +118,7 @@ const WizardHome = () => {
                     </button>
                     <button
                         className={`btn btn-primary ml-2 !text-xs btn-accent text-white !rounded-sm ${selectedJob ? "" : "btn-disabled"}`}
-                        onClick={() => handleRowClick(selectedJob._id)}
+                        onClick={() => handleRowClick(selectedJob.job_id)}
                     >
                         {/* <FaPlus size={14} className="" /> */}
                         <b>Edit Job</b>
@@ -171,8 +172,8 @@ const WizardHome = () => {
                                                     color="rgba(0, 0, 0, 1)"
                                                     radius="xs"
                                                     variant="outline"
-                                                    checked={selectedJob?._id === item._id}
-                                                    disabled={selectedJob && selectedJob?._id !== item._id }
+                                                    checked={selectedJob?.job_id === item.job_id}
+                                                    disabled={selectedJob && selectedJob?.job_id !== item.job_id }
                                                     onChange={(event) => handleSelectJob(event.currentTarget.checked, item)}
                                                 />
                                             </div>
@@ -193,10 +194,10 @@ const WizardHome = () => {
                                                 {/* </div> */}
                                             </div>
                                         </div>
-                                        <div style={{ width: "25%" , color: "#1f78a5"}} className="table-data-container font-semibold hover:cursor-pointer border-black border-r ml-2">
+                                        <div style={{ width: "25%" , color: "#1f78a5"}} className="table-data-container font-semibold border-black border-r ml-2">
                                             <div
-                                                onClick={() => handleRowClick(item.job_id)}
                                             >
+                                                {/* onClick={() => handleRowClick(item.job_id)} */}
                                                 {item.name}
                                             </div>
                                         </div>

@@ -159,6 +159,24 @@ export async function createProject(
     }
   }
 
+
+  export async function updateProjectFiles(project:any, token:string) {
+    try {
+      const res = fetch(UPDATE_PROJECT, {
+        method: "POST",
+        body: JSON.stringify(project),
+        headers: {
+          "Content-Type": "application/json",
+          Cookies: `session_id=${token}`,
+        },
+        credentials: "include",
+      });
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   export async function createJob(
     job_name : string,
     job_description : string,
@@ -192,7 +210,7 @@ export async function createProject(
     job_name : string,
     job_description : string,
     date_created : string,
-    var_id : string,
+    // var_id : string,
     token : string
     
   ) {
@@ -204,7 +222,7 @@ export async function createProject(
             job_name,
             job_description,
             date_created,
-            var_id
+            // var_id
         }),
         headers: {
           "Content-Type": "application/json",

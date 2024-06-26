@@ -376,7 +376,7 @@ export const CreateWizard = () => {
                     }
 
                     setLoadingApiRequest(true)
-                    const resp = await getBusinessLogic(project,name,description, date_created, variable, token)
+                    const resp = await getBusinessLogic(project,name,description, date_created, token)
                     const jsonResp = await resp?.json()
 
                     if(jsonResp.error){
@@ -406,8 +406,8 @@ export const CreateWizard = () => {
                             date_created: wizardDetails.date_created,
                             business_logic: jsonResp.message,
                             project_name: wizardDetails.project_name,
-                            variable_id: wizardDetails.variable,
-                            variable_name: wizardDetails.variable_name
+                            // variable_id: wizardDetails.variable,
+                            // variable_name: wizardDetails.variable_name
                         }))
                     }
 
@@ -753,7 +753,7 @@ const handleDeleteJob = async (job_id: string) => {
 }
 
 const handleCreateJob = async () => {
-    const { name, description, project, date_created } = wizardDetails
+    const { name, description, project, date_created, project_name } = wizardDetails
 
                     if(!name){
                         toast("Please enter a job name")
@@ -783,15 +783,56 @@ const handleCreateJob = async () => {
                     }
                     setLoading(false)
               
-                    dispatch(addJob({
+                    dispatch(addOne({
                       project_id: project,
+                      project_name,
                       name : name,
                       description: description,
                       date_created: date_created,
                       job_id: jsonResp.message
                       
                     }))
-                    navigate("/jobs")
+    navigate("/jobs")
+}
+
+const handleUpdateJob = async () => {
+    const { name, description, date_created } = wizardDetails
+
+    if(!name){
+        toast("Please enter a job name")
+        setStep(0)
+        return
+    }
+
+    if(!description){
+        toast("Please enter job description")
+        setStep(0)
+        return
+    }
+
+    setLoading(true)
+    const resp:any = await createJob(name, description, date_created, "project was here" ,token)
+    const jsonResp = await resp.json()
+
+    if(jsonResp.error){
+        toast(jsonResp.message)
+        setLoading(false)
+        return
+    }
+    setLoading(false)
+
+    dispatch(updateOne({
+        job_id: selectedJob.job_id,
+        project_id: selectedJob.project,
+        project_name: selectedJob.project_name,
+        name : name,
+        description: description,
+        date_created: date_created,
+        
+    }))
+
+
+    navigate("/jobs")
 }
 
 
@@ -819,7 +860,7 @@ const handleCreateJob = async () => {
                             <div className="flex gap-2 justify-between items-center">
                                 <p className="text-xs">Job&nbsp;:</p>
                                 <div className="w-[90%]">
-                                    <InputText disabled={selectedJob || step > 0} styleClass="rounded-none input-sm" placeholder="Enter job name" value={wizardDetails.name} changeFn={(e:any) => onValueChange("name", e)} />
+                                    <InputText styleClass="rounded-none input-sm" placeholder="Enter job name" value={wizardDetails.name} changeFn={(e:any) => onValueChange("name", e)} />
                                 </div>
                             </div>
 
@@ -827,11 +868,13 @@ const handleCreateJob = async () => {
                             <div className="flex gap-2 justify-between items-center">
                                 <p className="text-xs">Description&nbsp;:</p>
                                 <div className="w-[90%]">
-                                    <TextArea disabled={selectedJob || step > 0} styleClass="rounded-none textarea-sm" placeholder="Job description" value={wizardDetails.description} changeFn={(e:any) => onValueChange("description", e)} />
+                                    <TextArea styleClass="rounded-none textarea-sm" placeholder="Job description" value={wizardDetails.description} changeFn={(e:any) => onValueChange("description", e)} />
                                 </div>
                             </div>
                             
                             {/* project */}
+                            <>{console.log("details project", wizardDetails )}</>
+                            <>{console.log("options", getProjectOptions(projects) )}</>
                             <div className="flex gap-2 justify-between items-center">
                                 <p className="text-xs">Project&nbsp;:</p>
                                 <div className="w-[90%]">

@@ -17,6 +17,9 @@ import { getBusinessLogic, getFinalHyperbatchCode, getHyperbatchCode, getProgram
 import { addOne, updateOne } from "../../store/slices/job.slice";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { downloadText } from "download.js";
+
 export const RunJob = () => {
 
     const cookies = new Cookies(null, { path: '/' });
@@ -40,6 +43,8 @@ export const RunJob = () => {
             return 1
         }else return 0
     })
+
+    const [loadingApiRequest, setLoadingApiRequest] = useState(false)
 
 
     const [editorState, setEditorState] = useState(EditorState.createEmpty())
@@ -149,19 +154,19 @@ export const RunJob = () => {
                     }
 
                     const { project_id, name, description, date_created, variable} = currentJob
-                    // setLoadingApiRequest(true)
-                    const resp = await getBusinessLogic(project_id,name,description, date_created, "6672b6347df639fe56c0535a", token)
+                    setLoadingApiRequest(true)
+                    const resp = await getBusinessLogic(project_id,name,description, date_created, token)
                     const jsonResp = await resp?.json()
 
                     if(jsonResp.error){
                         toast(jsonResp.message)
                         setStep(0)
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         return
                     }else{
                         const newState = ContentState.createFromText(jsonResp.message)
                         setBusinessLogic(EditorState.createWithContent(newState))
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         setCurrentJob((state:any) => {
                             return {
                                 ...state,
@@ -200,7 +205,7 @@ export const RunJob = () => {
                         break;
                     }
                     
-                    // setLoadingApiRequest(true)
+                    setLoadingApiRequest(true)
                     const texts = getTextFormat(businessLogic)
                     const resp = await getProgramSummary(currentJob.jobId, texts, token)
                     const jsonResp = await resp?.json()
@@ -209,12 +214,12 @@ export const RunJob = () => {
                     if(jsonResp.error){
                         toast(jsonResp.message)
                         setStep(1)
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         return
                     }else {
                         const newState = ContentState.createFromText(jsonResp.message)
                         setProgramSummary(EditorState.createWithContent(newState))
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         setCurrentJob((state:any) => {
                             return {
                                 ...state,
@@ -244,7 +249,7 @@ export const RunJob = () => {
                         return
                     }
                     
-                    // setLoadingApiRequest(true)
+                    setLoadingApiRequest(true)
                     const texts = getTextFormat(programSummary)
                     const resp = await getHyperbatchCode(currentJob.jobId, texts, token)
                     const jsonResp = await resp?.json()
@@ -253,13 +258,13 @@ export const RunJob = () => {
                     if(jsonResp.error){
                         toast(jsonResp.message)
                         setStep(2)
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         return
                     }else {
                         // const newState = ContentState.createFromText(jsonResp.message)
                         // setHyperbatchCode(EditorState.createWithContent(newState))
                         setHyperbatchCode(jsonResp.message)
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         setCurrentJob((state:any) => {
                             return {
                                 ...state,
@@ -288,7 +293,7 @@ export const RunJob = () => {
                         return
                     }
                     
-                    // setLoadingApiRequest(true)
+                    setLoadingApiRequest(true)
                     // const texts = getTextFormat(hyperbatchCode)
                     const resp = await getRefinedHyperbatchCode(currentJob.jobId,  hyperbatchCode, token) /*texts)*/
                     const jsonResp = await resp?.json()
@@ -297,14 +302,14 @@ export const RunJob = () => {
                     if(jsonResp.error){
                         toast(jsonResp.message)
                         setStep(3)
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         return
                     }else {
                         // const newState = ContentState.createFromText(jsonResp.message)
                         // setRefinedHyperbatchCode(EditorState.createWithContent(newState))
                         const { message } = jsonResp
                         setRefinedHyperbatchCode(message)
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
 
                         // also updating prev step data, that might have changed
                         setCurrentJob((state:any) => {
@@ -335,20 +340,20 @@ export const RunJob = () => {
 
                     // fetch final code 
                     //  UNCOMMENT THIS
-                    // setLoadingApiRequest(true)
+                    setLoadingApiRequest(true)
                     const resp = await getFinalHyperbatchCode(currentJob.jobId, editorTexts, token)
                     const jsonResp = await resp?.json()
 
                     if(jsonResp.error){
                         toast(jsonResp.message)
                         setStep(3)
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         return
                     }else{
                         // update state
                         const { message } = jsonResp
                         setFinalCode(message)
-                        // setLoadingApiRequest(false)
+                        setLoadingApiRequest(false)
                         setCurrentJob((state:any) => {
                             return {
                                 ...state,
@@ -372,7 +377,7 @@ export const RunJob = () => {
     }, [step])
 
 
-    const MAX_STEP = 5
+    const MAX_STEP = 6
     const MIN_STEP = 0
 
     const incrementStep = () => {
@@ -436,7 +441,7 @@ export const RunJob = () => {
     }
 
     const getFinalOutputEditor = () => {
-        if(step === 5){
+        if(step >= 5){
             return <CodeEditor value={currentJob.final_code}  language="sql" padding={15}
             style={{
                 overflowY: "scroll",
@@ -449,6 +454,54 @@ export const RunJob = () => {
         }else{
             <div className="h-[40vh] flex justify-around items-center">&nbsp;</div>
         }
+    }
+
+    const downloadFile = () => {
+        let contnentState:any
+        let rawContentState:any
+        let fileName = ""
+        let texts = ""
+
+        switch(step){
+            case 1 : {
+                contnentState = businessLogic.getCurrentContent()
+                rawContentState = convertToRaw(contnentState).blocks
+                fileName = "business_logic.txt"
+                break;
+            }
+            case 2 : {
+                contnentState = programSummary.getCurrentContent()
+                rawContentState = convertToRaw(contnentState).blocks
+                fileName = "program_summary.txt"
+                break;
+            }
+            case 3 : {
+                // step 3,4,5 doesn't use draft text editor, pass the states directly
+                fileName = "hyperbatch_code.txt"
+                texts = hyperbatchCode
+                break;
+            }
+            case 4 : {
+               
+                fileName = "refined_hyperbatch_code.txt"
+                texts = refinedHyperbatchCode
+                break;
+            }
+            case 5 : {
+                
+                fileName = "final.txt"
+                texts = finalCode
+                break;
+            }
+        }
+
+        if(rawContentState){
+            rawContentState.forEach((block:any) => {
+                texts += block.text + "\n\n";
+            })
+        }
+
+        downloadText(fileName, texts)
     }
 
     return (
@@ -483,34 +536,65 @@ export const RunJob = () => {
                     <li className={`step text-xs ${step > 2 ? "step-primary" : ""}`}></li>
                     <li className={`step text-xs ${step > 3 ? "step-primary" : ""}`}></li>
                     <li className={`step text-xs ${step > 4 ? "step-primary" : ""}`}></li>
+                    <li className={`step text-xs ${step > 5 ? "step-primary" : ""}`}></li>
                 </ul>
             </div>
 
             {/* editors */}
             <div className="editor-container flex justify-between gap-4 mt-5">
-                <div className="w-[50%] border border-black bg-base-100 ">
-                    <div className="border-b border-black p-2">Input Files :</div>
-                    <div className="">
-                        {/* need it later [put it in if condition] */}
-                        {/* <div className="h-[40vh] flex justify-around items-center">&nbsp;</div> */}
+                {step <= 5 ? (
+                    <>
+                        <div className="w-[50%] border border-black bg-base-100 ">
+                            <div className="border-b border-black p-2">Input Files :</div>
+                            <div className="">
+                                {loadingApiRequest ? (
+                                        <div className="h-[40vh] mt-2 flex justify-around items-center">
+                                            <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                        </div>
+                                    ) :  (
+                                        <>
+                                            {getCurrentEditor(step)}
+                                        </>
+                                        )}    
+                            </div>
+                        </div>
 
-                        {getCurrentEditor(step)}
-
-                        {/* <div className="w-tc-editor-var"> </div>
-                        <TextEditor editorState={editorState} setEditorState={() => console.log("editor")} styleClasses=" !border-none h-[40vh]"/> */}
-                    </div>
-                </div>
-
-                <div className="w-[50%] border border-black bg-base-100">
-                    <div className="border-b border-black p-2">Expected Output Files :</div>
-                    <div className="">
-                        {/* need it later it in if condition */}
-                        
-                        {getFinalOutputEditor()}
-                        {/* <div className="w-tc-editor-var"> </div>
-                        <TextEditor editorState={editorState} setEditorState={() => console.log("editor")} styleClasses=" !border-none h-[40vh]"/> */}
-                    </div>
-                </div>
+                        <div className="w-[50%] border border-black bg-base-100">
+                            <div className="border-b border-black p-2">Expected Output Files :</div>
+                            <div className="">
+                                {step === 6 && loadingApiRequest ? (
+                                    <div className="h-[40vh] mt-2 flex justify-around items-center">
+                                            <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                        </div>
+                                ): <>
+                                    {getFinalOutputEditor()}
+                                </>}
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="w-[70%] border border-black bg-base-100 ">
+                        <>{console.log("step", step)}</>
+                            <div className="border-b border-black p-2">HYPERBATCH CODE :</div>
+                            <div>
+                                {getFinalOutputEditor()}
+                            </div>
+                        </div>
+                        <div className="w-[30%] flex flex-col gap-2 ">
+                            <div className="border border-black bg-base-100">
+                                <div className="border-b border-black p-2">STATUS :</div>
+                                <div className="h-[40vh] flex flex-col justify-between gap-2">
+                                    <div>status here</div>
+                                    <div className="flex flex-col gap-1">
+                                        <Button size="sm" variant="accent" styleClasses="rounded-none text-white" clickFn={() => {}}>Accept Recommendations</Button>
+                                        <Button size="sm" variant="accent" styleClasses="rounded-none text-white" clickFn={() => {}}>Suggest Fixes</Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* history details */}
@@ -531,14 +615,14 @@ export const RunJob = () => {
             {/* buttons */}
             <div className="mt-5 flex justify-between">
                 { true ? (
-                    <Button clickFn={decrementStep} styleClasses="!text-xs btn-accent text-white !rounded-sm">previous</Button>
+                    <Button clickFn={decrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MIN_STEP + 1 ? "btn-disabled" : ""}`}>previous</Button> 
 
                 ): <div></div>}
                 <div className="flex gap-2">
                     {true ? (
-                        <Button clickFn={() => console.log("clicked")} styleClasses="!text-xs btn-accent text-white !rounded-sm">Download</Button>
+                        <Button clickFn={downloadFile} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Download</Button>
                     ): null}
-                    <Button clickFn={incrementStep} styleClasses="!text-xs btn-accent text-white !rounded-sm">Run Job</Button>
+                    <Button clickFn={incrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>{step === 0 ? "Run Job" : "Next"}</Button>
                 </div>
             </div>
         </div>

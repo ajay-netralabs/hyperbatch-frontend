@@ -8,7 +8,7 @@ import { Checkbox, Modal } from '@mantine/core';
 
 import { InputText, TextArea, Select, Button } from "../../components/form"
 import { useEffect, useState } from "react";
-import { getAwsDirs, createProject, updateProject, getAllProjects } from "../../services/ApiServices";
+import { getAwsDirs, createProject, updateProject, getAllProjects, updateProjectFiles } from "../../services/ApiServices";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { addCurrentProject } from "../../store/slices/currentResources";
@@ -50,6 +50,7 @@ export const CreateProject = () => {
             const path = file_type === "aws" ?  selectedProject.file.split("/") : null
 
             return {
+                project_id: selectedProject.project_id,
                 name : selectedProject.name,
                 description: selectedProject.description,
                 folder: path ? path[0] : null,
@@ -57,8 +58,8 @@ export const CreateProject = () => {
                 file_type: selectedProject.file_type,
                 fileByte: !path ? selectedProject.file : "",
                 date_created : currentDate,
-                input_files : [{ file : path[1]}],
-                output_files: []
+                input_files : selectedProject.input_files || [],
+                output_files: selectedProject.output_files || []
             }
 
         }else{
@@ -78,6 +79,7 @@ export const CreateProject = () => {
         }
     })
 
+    console.log("Selected", selectedProject)
     // console.log("project data: ", projectData)
 
     const [loading, setLoding] = useState(false)
@@ -134,27 +136,88 @@ export const CreateProject = () => {
     }   
 
 
-    const handleDeleteFile = (type:string) => {
+    const [loadingInputFiles, setLoadingInputFiles] = useState(false)
+    const [loadingOutputFiles, setLoadingOutputFiles] = useState(false)
+
+    const handleDeleteFile = async (type:string) => {
         // delete selected files
         if(type === "input") {
-            setProjectData((state:any) => {
-                return {
-                    ...state,
-                    input_files : state.input_files.filter((inputData:any) => !selectedInputFiles.includes(inputData.id))
+
+            if(!selectedInputFiles.length){
+                toast.error("At least select 1 file")
+                return;
+            }
+
+            const updateProject = {
+                project_id : projectData.project_id,
+                project_name : projectData.name,
+                project_description: projectData.description,
+                date_created: projectData.date_created,
+                input_files : projectData.input_files,
+                output_files : projectData.output_files
+            }
+
+            updateProject.input_files = projectData.input_files.filter((inputData:any) => !selectedInputFiles.includes(inputData.id))
+
+            try {
+                setLoadingInputFiles(true)
+                const res = await updateProjectFiles(updateProject, token)
+                const jsonResp = await res?.json()
+
+                if(jsonResp.error){
+                    toast.error(jsonResp.message);
+                    setLoadingInputFiles(false)
+                    return;
                 }
-            })
+                setLoadingInputFiles(false)
+                setProjectData((state:any) => ({...state, ...updateProject}))
+
+            }catch{
+                toast.error("Something went wrong")
+                setLoadingInputFiles(false)
+                return
+            }
+
+
         }
 
         if(type === "output") {
-            setProjectData((state:any) => {
-                return {
-                    ...state,
-                    output_files : state.output_files.filter((outputData:any) => !selectedInputFiles.includes(outputData.id))
-                }
-            })
-        }
 
-        // TODO: [call update project api with project Data]
+            if(!selectedOutputFiles.length){
+                toast.error("At least select 1 file")
+                return;
+            }
+
+
+            const updateProject = {
+                project_id : projectData.project_id,
+                project_name : projectData.name,
+                project_description: projectData.description,
+                date_created: projectData.date_created,
+                input_files : projectData.input_files,
+                output_files : projectData.output_files
+            }
+
+            updateProject.output_files = projectData.output_files.filter((outputData:any) => !selectedOutputFiles.includes(outputData.id))
+
+            try {
+                setLoadingOutputFiles(true)
+                const res = await updateProjectFiles(updateProject, token)
+                const jsonResp = await res?.json()
+
+                if(jsonResp.error){
+                    toast.error(jsonResp.message);
+                    setLoadingOutputFiles(false)
+                    return;
+                }
+
+                setProjectData((state:any) => ({...state, ...updateProject}))
+
+            }catch{
+                toast.error("Something went wrong")
+                setLoadingOutputFiles(false)
+            }
+        } 
     }
 
     // useEffect(() => {
@@ -230,7 +293,7 @@ export const CreateProject = () => {
         })   
     }
 
-    const getFileCount = (aws:any) => {
+    const getFileCount = (aws:any, includeFileCount = true) => {
         const res:any = []
 
         if(selectedProject && !Object.keys(aws).length){
@@ -242,7 +305,7 @@ export const CreateProject = () => {
             Object.keys(aws)?.forEach((folder: string) => {
                 const obj:any = {}
                 obj.value = folder
-                obj.label = `${folder} (${awsDir[folder].length})`
+                obj.label = includeFileCount ? `${folder} (${awsDir[folder].length})` : folder
     
                 res.push(obj)
             })
@@ -372,12 +435,8 @@ export const CreateProject = () => {
     }
 
     const handleUpdateProject = async () => {
-        
-            
         const {name, description, folder, file, date_created, file_type, fileByte } = projectData
         
-        
-  
         if(!name){
           toast("Please enter project name")
           return
@@ -560,28 +619,34 @@ export const CreateProject = () => {
                                                 <Checkbox />
                                             <div>
                                         )} */}
-
-                                            {projectData.input_files.map((file:any, index) => (
-                                                <div className="table-data" key={index}>
-                                                    <div style={{ width: "3%" }} className="table-data-container border-black border-r !py-[5px]  flex justify-center">
-                                                        <Checkbox 
-                                                         checked={selectedInputFiles.includes(file.id)}
-                                                         onChange={(e) => handleSelectInputFile(e.target.checked, file.id)}/>
-                                                    </div>
-                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
-                                                        <p>{file.file}</p>
-                                                    </div>
-
-                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
-                                                    </div>
-
-                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
-                                                    </div>
-
-                                                    <div  style={{ width: "25%" }} className="table-data-container ml-2">
-                                                    </div>
+                                            {loadingInputFiles ? (
+                                                <div className="flex justify-center items-center mt-4">
+                                                    <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
                                                 </div>
-                                            ))}
+                                            ) : <>
+                                            {projectData.input_files.map((file:any, index:number) => (
+                                                    <div className="table-data" key={index}>
+                                                        <div style={{ width: "3%" }} className="table-data-container border-black border-r !py-[5px]  flex justify-center">
+                                                            <Checkbox 
+                                                             checked={selectedInputFiles.includes(file.id)}
+                                                             onChange={(e) => handleSelectInputFile(e.target.checked, file.id)}/>
+                                                        </div>
+                                                        <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                            <p>{file.file}</p>
+                                                        </div>
+    
+                                                        <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                        </div>
+    
+                                                        <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                        </div>
+    
+                                                        <div  style={{ width: "25%" }} className="table-data-container ml-2">
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </>
+                                            }
 
                                     </div>
                                 </div>
@@ -605,12 +670,18 @@ export const CreateProject = () => {
                                         <div style={{ width: "25%" }} className=" ml-2 !py-[5px]">Date Uploaded</div>
                                     </div>
                                     <div className="table-body">
-                                        {projectData.output_files.map((file:any, index) => (
+
+                                        {loadingOutputFiles ? (
+                                            <div className="flex justify-center items-center mt-4">
+                                                <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                            </div>
+                                        ) : <>
+                                        {projectData.output_files.map((file:any, index:number) => (
                                                 <div className="table-data" key={index}>
                                                     <div style={{ width: "3%" }} className="table-data-container border-black border-r !py-[5px]  flex justify-center">
                                                         <Checkbox 
                                                          checked={selectedInputFiles.includes(file.id)}
-                                                         onChange={(e) => handleSelectInputFile(e.target.checked, file.id)}/>
+                                                         onChange={(e) => handleSelectOutputFile(e.target.checked, file.id)}/>
                                                     </div>
                                                     <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
                                                         <>{console.log("file: ", file)}</>
@@ -626,7 +697,31 @@ export const CreateProject = () => {
                                                     <div  style={{ width: "25%" }} className="table-data-container ml-2">
                                                     </div>
                                                 </div>
-                                            ))}
+                                        ))}
+                                        </>}
+
+                                        {projectData.output_files.map((file:any, index:number) => (
+                                                <div className="table-data" key={index}>
+                                                    <div style={{ width: "3%" }} className="table-data-container border-black border-r !py-[5px]  flex justify-center">
+                                                        <Checkbox 
+                                                         checked={selectedInputFiles.includes(file.id)}
+                                                         onChange={(e) => handleSelectOutputFile(e.target.checked, file.id)}/>
+                                                    </div>
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                        <>{console.log("file: ", file)}</>
+                                                        <p>{file.file}</p>
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
+                                                    </div>
+
+                                                    <div  style={{ width: "25%" }} className="table-data-container ml-2">
+                                                    </div>
+                                                </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -667,7 +762,7 @@ export const CreateProject = () => {
             <Modal opened={outputOpened} onClose={outputFilesFunctions.close} title="Add Output Files" centered size={"lg"}>
                 <div className="flex flex-col gap-4 mt-4">
                     <div className="flex gap-4">
-                        <Select placeholder="Select Folder" value={outputFile.folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => setOutputFile((state:any) => ({...state, folder : e.target.value}))} />
+                        <Select placeholder="Select Folder" value={outputFile.folder || null} options={getFileCount(awsDir, false)} changeFn={(e:any) => setOutputFile((state:any) => ({...state, folder : e.target.value}))} />
                         {/* <Select placeholder="Select File" value={projectData.output_file || null} options={getFileName(selectedFolder || projectData.folder)} changeFn={(e:any) => handleFilePath(e, "file")} /> */}
                         <Button variant="primary" size="sm" styleClasses="!h-fit" clickFn={fetchAwsDir}>
                             <div className={`${awsLoading ? "animate-spin" : ""}`}>
@@ -675,7 +770,7 @@ export const CreateProject = () => {
                             </div>
                         </Button>
                     </div>
-                    <InputText styleClass="input-sm" value={outputFile.file} changeFn={(e:any) => handleSetOutput(e)}/>
+                    <InputText placeholder="Enter File Name" styleClass="input-sm" value={outputFile.file} changeFn={(e:any) => handleSetOutput(e)}/>
                 </div>
 
                 <div className="flex justify-end mt-8">

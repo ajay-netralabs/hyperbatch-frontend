@@ -180,18 +180,15 @@ const ProjectHome = () => {
                                                 color="rgba(0, 0, 0, 1)"
                                                 radius="xs"
                                                 variant="outline"
-                                                checked={selectedProject?._id === item._id}
-                                                disabled={selectedProject && selectedProject?._id !== item._id }
+                                                checked={selectedProject?.project_id === item.project_id}
+                                                disabled={selectedProject && selectedProject?.project_id !== item.project_id }
                                                 onChange={(event) => handleSelectProject(event.currentTarget.checked, item)}
                                             />
                                         </div>
                                     </div>
                                     
-                                    <div style={{ width: "25%" , color: "#1f78a5"}} className="table-data-container font-semibold hover:cursor-pointer border-black border-r ml-2">
-                                        <div
-                                             className="" onClick={() => handleRowClick(item.project_id)}
-
-                                        >
+                                    <div style={{ width: "25%" , color: "#1f78a5"}} className="table-data-container font-semibold border-black border-r ml-2">
+                                        <div>
                                             {item.name}
                                         </div>
                                     </div>
