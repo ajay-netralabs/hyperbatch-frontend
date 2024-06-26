@@ -459,18 +459,21 @@ export const RunJob = () => {
                     "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
             }} />
         }else{
-            // <div className="h-[40vh] flex justify-around items-center">&nbsp;</div>
-
-            return <CodeEditor value={currentJob.final_code} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
-            style={{
-                overflowY: "scroll",
-                height: "40vh",
-                backgroundColor: "black",
-                borderRadius: "0px",
-                fontFamily:
-                    "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-            }} />
+            <div className="h-[40vh] flex justify-around items-center">&nbsp;</div>
         }
+    }
+
+
+    const getAutoFixEditor = () => {
+        return <CodeEditor value={finalCode} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
+        style={{
+            overflowY: "scroll",
+            height: "40vh",
+            backgroundColor: "black",
+            borderRadius: "0px",
+            fontFamily:
+                "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+        }} />
     }
 
     const downloadFile = () => {
@@ -540,12 +543,24 @@ export const RunJob = () => {
 
     }
 
+
+    const [feedback, setFeedback] = useState<string>("")
+    const [suggestion, setSuggestion] = useState<string>("")
+
+    const [loadingSuggestion, setLoadingSuggestion] = useState<boolean>(false)
+    const [disableAutoFix, setDisableAutoFix] = useState<boolean>(false)
+
+    const [loadingAutoFix, setLoadingAutoFix] = useState<boolean>(false)
+
     const handleAutoFix = async () => {
         try{
-            const res = await autoFix(finalCode, currentJob.job_id, "", "", token)
+
+            setLoadingAutoFix(true)
+            const res = await autoFix(finalCode, currentJob.job_id, feedback, suggestion, token)
             
             if(!res?.ok){
                 toast.error(res?.statusText)
+                setLoadingAutoFix(false)
                 return;
             }
 
@@ -553,10 +568,21 @@ export const RunJob = () => {
 
             if(jsonResp.error){
                 toast.error(jsonResp.message)
+                setLoadingAutoFix(false)
                 return;
             }
 
             // if ok then what?
+            setFinalCode(jsonResp.message)
+
+            setCurrentJob((state:any) => {
+                return {
+                    ...state,
+                    final_code: jsonResp.message
+                }
+            })
+            dispatch(updateOne({job_id : currentJob.job_id, final_code : jsonResp.message}))
+            setLoadingAutoFix(false)
 
         }catch{
             toast.error("Something went wrong")
@@ -565,11 +591,13 @@ export const RunJob = () => {
 
     const handleSelfAssesment = async () => {
         try{
-
+            setDisableAutoFix(false)
+            setLoadingSuggestion(true)
             const res = await selfAssessment(finalCode, currentJob.job_id, token)
 
             if(!res?.ok){
                 toast.error(res?.statusText)
+                setLoadingSuggestion(false)
                 return;
             }
 
@@ -577,10 +605,17 @@ export const RunJob = () => {
 
             if(jsonResp.error){
                 toast.error(jsonResp.message)
+                setLoadingSuggestion(false)
                 return;
             }
 
-            console.log("jsonResp", jsonResp) 
+            setLoadingSuggestion(false)
+            setSuggestion(jsonResp.message)
+            
+            const NO_ISSUE_TEXT = "no problems found"
+            if(jsonResp.message.includes(NO_ISSUE_TEXT)){
+                setDisableAutoFix(true)
+            }
 
             // disable autofix if suggetion returns no problems found 
             // if ok then what?
@@ -592,8 +627,6 @@ export const RunJob = () => {
     }
 
 
-    const [feedback, setFeedback] = useState<string>("")
-    const [suggestion, setSuggestion] = useState<string>("")
 
     return (
         <div className={`project-container ${open ? "sidenav-open" : ""}`}>
@@ -633,8 +666,7 @@ export const RunJob = () => {
             <>{console.log("step", step)}</>
             {/* editors */}
             <div className="editor-container flex justify-between gap-4 mt-5">
-                {/* step <= 5 ? */}
-                {false ? (
+                { step <= 5 ? (
                     <>
                         <div className="w-[50%] border border-black bg-base-100 ">
                             <div className="border-b border-black p-2">Input Files :</div>
@@ -677,10 +709,16 @@ export const RunJob = () => {
                             <div className="border border-black bg-base-100">
                                 <div className="border-b border-black p-2">STATUS :</div>
                                 <div className="h-[40vh] flex flex-col justify-between gap-2">
-                                    <div>status here</div>
+                                    {loadingSuggestion ? (
+                                         <div className="h-[40vh] mt-2 flex justify-around items-center">
+                                            <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                        </div>
+                                    ) : (
+                                        <div className="p-2 overflow-y-scroll">{suggestion}</div>
+                                    )}
                                     <div className="flex flex-col gap-1">
-                                        <Button size="sm" variant="accent" styleClasses="rounded-none text-white" clickFn={() => {}}>Accept Recommendations</Button>
-                                        <Button size="sm" variant="accent" styleClasses="rounded-none text-white" clickFn={handleSelfAssesment}>Suggest Fixes</Button>
+                                        <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion || disableAutoFix ? "btn-disabled" : ""}`} clickFn={modalFunctions.open}>Accept Recommendations</Button>
+                                        <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion ? "btn-disabled" : ""}`} clickFn={handleSelfAssesment}>Suggest Fixes</Button>
                                     </div>
                                 </div>
                             </div>
@@ -725,11 +763,19 @@ export const RunJob = () => {
 
             <Modal opened={opened} onClose={modalFunctions.close} title="Suggest Fixes" centered size={"70%"}>
                 <div className="flex flex-col gap-2">
-                    {getFinalOutputEditor()}
+                    <div>
+                        {loadingAutoFix ? (
+                            <div className="h-[40vh] mt-2 flex justify-around items-center">
+                                <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                            </div>
+                        ) : <>{getAutoFixEditor()}</>}
+                    </div>
+                    
                     <InputText placeholder="Feedback" styleClass="input-sm" value={feedback} changeFn={(e:any) => setFeedback(e.target.value)} />
                     <InputText placeholder="Suggestions" styleClass="input-sm" value={suggestion} changeFn={(e:any) => setSuggestion(e.target.value)} />
-                   <div className="flex justify-end">
-                        <Button size="sm" variant="accent" styleClasses="text-white rounded-none" clickFn={handleAutoFix}>Generate</Button>
+                   <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="accent" styleClasses={`text-white rounded-none ${loadingAutoFix ? "btn-disabled" : ""}`} clickFn={handleAutoFix}>Generate</Button>
+                        <Button size="sm" variant="accent" styleClasses={`text-white rounded-none`} clickFn={modalFunctions.close}>Close</Button>
                    </div>
                 </div>
             </Modal>
