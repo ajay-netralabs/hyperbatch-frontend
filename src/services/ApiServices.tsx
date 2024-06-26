@@ -10,7 +10,8 @@ import { GET_ALL_JOBS,
     DELETE,
   FINAL_SQL_CODE,
   GET_ALL_VARIABLES,
-CREATE_VARIABLE } 
+CREATE_VARIABLE,
+CREATE_JOB } 
     from "./urls";
 
 interface IJobs {
@@ -145,6 +146,34 @@ export async function createProject(
           file,
           date_created,
           file_type
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Cookies: `session_id=${token}`,
+        },
+        credentials: "include",
+      });
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  export async function createJob(
+    job_name : string,
+    job_description : string,
+    date_created : string,
+    project_id : string,
+    token:string
+  ) {
+    try {
+      const res = fetch(CREATE_JOB, {
+        method: "POST",
+        body: JSON.stringify({
+          job_name,
+          job_description,
+          date_created,
+          project_id
         }),
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,7 @@
-export const BASE_URL = "https://gixj27tn45rrxqrwrlpktegrxi0moqnj.lambda-url.us-east-2.on.aws";
-// const BASE_URL = "http://localhost:8000"
+// export const BASE_URL = "https://gixj27tn45rrxqrwrlpktegrxi0moqnj.lambda-url.us-east-2.on.aws";
+const BASE_URL = "http://localhost:8081"
+
+export const CREATE_JOB = BASE_URL + "/create_job";
 
 export const GET_ALL_JOBS = BASE_URL + "/get_all_jobs";
 

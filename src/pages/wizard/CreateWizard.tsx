@@ -5,7 +5,7 @@ import { TextEditor } from "../../components/index";
 
 import "./wizard.css"
 import { useDispatch, useSelector } from "react-redux";
-import { getAllProjects, getBusinessLogic, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, getAllJobs ,getFinalHyperbatchCode, getAllVariables, deleteData } from "../../services/ApiServices";
+import { getAllProjects, getBusinessLogic, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, getAllJobs ,getFinalHyperbatchCode, getAllVariables, deleteData, createJob } from "../../services/ApiServices";
 import { toast } from "react-toastify";
 
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
@@ -55,8 +55,8 @@ export const CreateWizard = () => {
                 date_created : currentDate,
                 project_name: selectedJob.project_name,
                 finalCodeResp: selectedJob.final_code,
-                variable: selectedJob.var_id || selectedJob.variable_id,
-                variable_name: selectedJob.variable_name
+                // variable: selectedJob.var_id || selectedJob.variable_id,
+                // variable_name: selectedJob.variable_name
             }
 
         }else{
@@ -72,8 +72,8 @@ export const CreateWizard = () => {
                 date_created : currentDate,
                 project_name: "",
                 finalCodeResp: "",
-                variable: "",
-                variable_name: ""
+                // variable: "",
+                // variable_name: ""
             }
         }
     })
@@ -149,6 +149,8 @@ export const CreateWizard = () => {
         }
     })
 
+    
+
 
     useEffect(() => {
 
@@ -210,8 +212,13 @@ export const CreateWizard = () => {
     //     if(!allJobs.length && !alreadyFetched.jobs ) fetchJobs()
     // }, [])
 
+    useEffect(() => {
+        setProjects(allProjects)
+    }, [allProjects])
+
 
     const getProjectOptions = (projects:any) => {
+        
         const res:any = []
 
         // if(selectedJob){
@@ -332,7 +339,7 @@ export const CreateWizard = () => {
         const handleChangeStep = async() => {
             switch(step){
                 case 1 : {
-                    const { name, description, project, date_created, variable } = wizardDetails
+                    const { name, description, project, date_created } = wizardDetails
 
                     if(!name){
                         toast("Please enter a job name")
@@ -352,11 +359,11 @@ export const CreateWizard = () => {
                         return
                     }
 
-                    if(!variable) {
-                        toast("Please select a variable")
-                        setStep(0)
-                        return
-                    }
+                    // if(!variable) {
+                    //     toast("Please select a variable")
+                    //     setStep(0)
+                    //     return
+                    // }
 
 
                     // check if business logic is already present and has not changed
@@ -745,6 +752,50 @@ const handleDeleteJob = async (job_id: string) => {
     }
 }
 
+const handleCreateJob = async () => {
+    const { name, description, project, date_created } = wizardDetails
+
+                    if(!name){
+                        toast("Please enter a job name")
+                        setStep(0)
+                        return
+                    }
+
+                    if(!description){
+                        toast("Please enter job description")
+                        setStep(0)
+                        return
+                    }
+
+                    if(!project){
+                        toast("Please select a project")
+                        setStep(0)
+                        return
+                    }
+                    setLoading(true)
+                    const resp:any = await createJob(name, description, date_created, project,token)
+                    const jsonResp = await resp.json()
+              
+                    if(jsonResp.error){
+                      toast(jsonResp.message)
+                      setLoading(false)
+                      return
+                    }
+                    setLoading(false)
+              
+                    dispatch(addJob({
+                      project_id: project,
+                      name : name,
+                      description: description,
+                      date_created: date_created,
+                      job_id: jsonResp.message
+                      
+                    }))
+                    navigate("/jobs")
+}
+
+
+
     console.log("selected job", selectedJob)
     return (
         <div className="">
@@ -839,7 +890,7 @@ const handleDeleteJob = async (job_id: string) => {
                                 {selectedJob ? (
                                     <Button size="sm" clickFn={() => handleDeleteJob(selectedJob._id)} styleClasses="btn-accent !rounded-sm text-white">Delete Job</Button>
                                 ): null}
-                                <Button size="sm" clickFn={() => console.log("clicked")} styleClasses="btn-accent !rounded-sm text-white">Save Job</Button>
+                                <Button size="sm" clickFn={() => handleCreateJob()} styleClasses="btn-accent !rounded-sm text-white">Save Job</Button>
                             </div>
 
                             {/* <div className="flex">
