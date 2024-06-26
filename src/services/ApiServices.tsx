@@ -14,7 +14,8 @@ CREATE_VARIABLE,
 CREATE_JOB,
 UPDATE_JOB,
 SELF_ASSESS,
-AUTOFIX } 
+AUTOFIX,
+SAVECODE } 
     from "./urls";
 
 interface IJobs {
@@ -527,3 +528,28 @@ interface VarListItem {
       console.log(error);
     }
   }
+
+export async function saveCode(
+final_sql_code : string,
+job_id: string,
+token : string
+){
+  try {
+    const res = fetch(SAVECODE, {
+      method: "POST",
+      body: JSON.stringify({
+        final_sql_code,
+        job_id,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        Cookies: `session_id=${token}`,
+      },
+      credentials: "include",
+    });
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+
+}

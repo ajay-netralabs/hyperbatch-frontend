@@ -1,6 +1,8 @@
 // export const BASE_URL = "https://gixj27tn45rrxqrwrlpktegrxi0moqnj.lambda-url.us-east-2.on.aws";
 const BASE_URL = "http://localhost:8081"
 
+export const SAVECODE = BASE_URL + "/save_code"
+
 export const SELF_ASSESS = BASE_URL + "/self_accessement"
 
 export const AUTOFIX = BASE_URL + "/auto_fix"
