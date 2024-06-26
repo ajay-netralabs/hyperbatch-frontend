@@ -237,28 +237,24 @@ export async function createProject(
   }
 
   export async function getBusinessLogic(
-    project_id : string,
-    job_name : string,
-    job_description : string,
-    date_created : string,
+    job_id:string,
     // var_id : string,
     token : string
     
   ) {
     try {
+      console.log("job_id: ", job_id )
       const res = fetch(BUSINESS_LOGIC, {
         method: "POST",
         body: JSON.stringify({
-            project_id,
-            job_name,
-            job_description,
-            date_created,
+            job_id
             // var_id
         }),
         headers: {
           "Content-Type": "application/json",
           Cookies: `session_id=${token}`,
         },
+        
         credentials: "include",
       });
       return res;

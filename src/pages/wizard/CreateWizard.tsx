@@ -376,7 +376,8 @@ export const CreateWizard = () => {
                     }
 
                     setLoadingApiRequest(true)
-                    const resp = await getBusinessLogic(project,name,description, date_created, token)
+                    console.log("sleected job above sending business: ", selectedJob)
+                    const resp = await getBusinessLogic(selectedJob.job_id, token)
                     const jsonResp = await resp?.json()
 
                     if(jsonResp.error){
@@ -391,7 +392,6 @@ export const CreateWizard = () => {
                         setWizardDetails(state => {
                             return {
                                 ...state,
-                                jobId: jsonResp.id,
                                 businessResp : jsonResp.message
                                 // businessResp: getEditorData(businessLogic)
                             }
@@ -399,7 +399,7 @@ export const CreateWizard = () => {
 
                         // add job data to redux store
                         dispatch(addOne({ 
-                            job_id : jsonResp.id, 
+                            job_id : selectedJob.job_id, 
                             name: wizardDetails.name, 
                             description: wizardDetails.description, 
                             project_id: wizardDetails.project,
@@ -773,7 +773,7 @@ const handleCreateJob = async () => {
                         return
                     }
                     setLoading(true)
-                    const resp:any = await createJob(name, description, date_created, project,token)
+                    const resp:any = await createJob(name, description, date_created, project, project_name,token)
                     const jsonResp = await resp.json()
               
                     if(jsonResp.error){
@@ -797,7 +797,7 @@ const handleCreateJob = async () => {
 
 
 const handleUpdateJob = async () => {
-    const { jobId, name, description, date_created } = wizardDetails
+    const { jobId, name, description } = wizardDetails
 
     if(!name){
         toast("Please enter a job name")
@@ -828,7 +828,6 @@ const handleUpdateJob = async () => {
         project_name: selectedJob.project_name,
         name : name,
         description: description,
-        date_created: date_created,
         
     }))
 
@@ -934,7 +933,7 @@ const handleUpdateJob = async () => {
                                 {selectedJob ? (
                                     <Button size="sm" clickFn={() => handleDeleteJob(selectedJob._id)} styleClasses="btn-accent !rounded-sm text-white">Delete Job</Button>
                                 ): null}
-                                <Button size="sm" clickFn={() => { if (selectedJob?.length === 0){handleCreateJob()} else {handleUpdateJob()}}} styleClasses="btn-accent !rounded-sm text-white">Save Job</Button>
+                                <Button size="sm" clickFn={() => { if(selectedJob){handleUpdateJob()} else {handleCreateJob()}}} styleClasses="btn-accent !rounded-sm text-white">Save Job</Button>
                             </div>
 
                             {/* <div className="flex">
