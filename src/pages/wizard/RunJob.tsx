@@ -153,9 +153,9 @@ export const RunJob = () => {
                         return
                     }
 
-                    const { project_id, name, description, date_created, variable} = currentJob
+                    const { job_id, project_id, name, description, date_created, variable} = currentJob
                     setLoadingApiRequest(true)
-                    const resp = await getBusinessLogic(project_id,name,description, date_created, token)
+                    const resp = await getBusinessLogic(job_id, token)
                     const jsonResp = await resp?.json()
 
                     if(jsonResp.error){
@@ -504,6 +504,18 @@ export const RunJob = () => {
         downloadText(fileName, texts)
     }
 
+    const handleSave = async () => {
+        // save output to aws
+    }
+
+    const handleAutoFix = async () => {
+
+    }
+
+    const handleSelfAssesment = async () => {
+        
+    }
+
     return (
         <div className={`project-container ${open ? "sidenav-open" : ""}`}>
            <div className="flex justify-center">
@@ -614,15 +626,19 @@ export const RunJob = () => {
 
             {/* buttons */}
             <div className="mt-5 flex justify-between">
-                { true ? (
+                
                     <Button clickFn={decrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MIN_STEP + 1 ? "btn-disabled" : ""}`}>previous</Button> 
 
-                ): <div></div>}
                 <div className="flex gap-2">
-                    {true ? (
-                        <Button clickFn={downloadFile} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Download</Button>
-                    ): null}
-                    <Button clickFn={incrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>{step === 0 ? "Run Job" : "Next"}</Button>
+                   
+                    <Button clickFn={downloadFile} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Download</Button>
+                   
+                   {step < MAX_STEP ? (
+                       <Button clickFn={incrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MAX_STEP ? "btn-disabled" : ""}`}>{step === 0 ? "Run Job" : "Next"}</Button>
+
+                   ) : (
+                    <Button clickFn={() => {}} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Save</Button>
+                   )}
                 </div>
             </div>
         </div>

@@ -83,28 +83,28 @@ export const CreateWizard = () => {
 
     const [projects, setProjects]:any = useState([])
     const [loadingProjects, setLoadingProjects] = useState(false)
-    const [loadingApiRequest, setLoadingApiRequest] = useState(false)
+    // const [loadingApiRequest, setLoadingApiRequest] = useState(false)
 
-    const [loadingVariables, setLoadingVariables] = useState(false)
+    // const [loadingVariables, setLoadingVariables] = useState(false)
 
-    const [businessLogic, setBusinessLogic] = useState(() => {
-        if(selectedJob && selectedJob.business_logic){
-            return EditorState.createWithContent(
-                ContentState.createFromText(selectedJob.business_logic)
-              );
-        }else {
-            return EditorState.createEmpty();
-          }
-    })
-    const [programSummary, setProgramSummary] = useState(() => {
-        if(selectedJob && selectedJob.program_summary){
-            return EditorState.createWithContent(
-                ContentState.createFromText(selectedJob.program_summary)
-              );
-        }else {
-            return EditorState.createEmpty();
-          }
-    })
+    // const [businessLogic, setBusinessLogic] = useState(() => {
+    //     if(selectedJob && selectedJob.business_logic){
+    //         return EditorState.createWithContent(
+    //             ContentState.createFromText(selectedJob.business_logic)
+    //           );
+    //     }else {
+    //         return EditorState.createEmpty();
+    //       }
+    // })
+    // const [programSummary, setProgramSummary] = useState(() => {
+    //     if(selectedJob && selectedJob.program_summary){
+    //         return EditorState.createWithContent(
+    //             ContentState.createFromText(selectedJob.program_summary)
+    //           );
+    //     }else {
+    //         return EditorState.createEmpty();
+    //       }
+    // })
     // const [hyperbatchCode, setHyperbatchCode] = useState(() => {
     //     if(selectedJob && selectedJob.sql_code){
     //         return EditorState.createWithContent(
@@ -115,13 +115,13 @@ export const CreateWizard = () => {
     //       }
     // })
 
-    const [hyperbatchCode, setHyperbatchCode] = useState(() => {
-        if(selectedJob && selectedJob.sql_code){
-            return selectedJob.sql_code
-        }else {
-            return ""
-          }
-    })
+    // const [hyperbatchCode, setHyperbatchCode] = useState(() => {
+    //     if(selectedJob && selectedJob.sql_code){
+    //         return selectedJob.sql_code
+    //     }else {
+    //         return ""
+    //       }
+    // })
 
     // const [refinedHyperbatchCode, setRefinedHyperbatchCode] =  useState(() => {
     //     if(selectedJob && selectedJob.refined_sql_code){
@@ -133,43 +133,43 @@ export const CreateWizard = () => {
     //       }
     // })
 
-    const [refinedHyperbatchCode, setRefinedHyperbatchCode] =  useState(() => {
-        if(selectedJob && selectedJob.refined_sql_code){
-            return selectedJob.refined_sql_code
-        }else {
-            return ""
-          }
-    })
+    // const [refinedHyperbatchCode, setRefinedHyperbatchCode] =  useState(() => {
+    //     if(selectedJob && selectedJob.refined_sql_code){
+    //         return selectedJob.refined_sql_code
+    //     }else {
+    //         return ""
+    //       }
+    // })
 
-    const [finalCode, setFinalCode] = useState(() => {
-        if(selectedJob && selectedJob.final_code){
-            return selectedJob.final_code
-        }else {
-            return ""
-        }
-    })
+    // const [finalCode, setFinalCode] = useState(() => {
+    //     if(selectedJob && selectedJob.final_code){
+    //         return selectedJob.final_code
+    //     }else {
+    //         return ""
+    //     }
+    // })
 
     
 
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        // if variables are empty, fetch
-        const fetchAllVariables = async () => {
-            setLoadingVariables(true)
-            const variables = await getAllVariables(token)
-            if(Array.isArray(variables)){
-                dispatch(addVariable(variables))
-                dispatch(addFetch("variables"))
+    //     // if variables are empty, fetch
+    //     const fetchAllVariables = async () => {
+    //         setLoadingVariables(true)
+    //         const variables = await getAllVariables(token)
+    //         if(Array.isArray(variables)){
+    //             dispatch(addVariable(variables))
+    //             dispatch(addFetch("variables"))
 
-            }
-            setLoadingVariables(false)
-        }
+    //         }
+    //         setLoadingVariables(false)
+    //     }
 
-        if(!allvariables.length && !alreadyFetched.variables){
-            fetchAllVariables()
-        }
-    }, [])
+    //     if(!allvariables.length && !alreadyFetched.variables){
+    //         fetchAllVariables()
+    //     }
+    // }, [])
 
     useEffect(() => {
         // dispatch setProjects from here
@@ -241,17 +241,17 @@ export const CreateWizard = () => {
         return res
     }
 
-    const getVariableOptions = () => {
-        const res:any = []
+    // const getVariableOptions = () => {
+    //     const res:any = []
 
-        allvariables?.forEach((variable:any) => {
-            res.push({
-                label: variable.name,
-                value: variable._id
-            })
-        })
-        return res
-    }
+    //     allvariables?.forEach((variable:any) => {
+    //         res.push({
+    //             label: variable.name,
+    //             value: variable._id
+    //         })
+    //     })
+    //     return res
+    // }
 
     const onValueChange = (name: string, event: ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target
@@ -303,347 +303,347 @@ export const CreateWizard = () => {
     // hyperbatch
     // refined hyperbatch
 
-    const getTextFormat = (state:any) => {
-        const contentState = state.getCurrentContent()
-        const rawContent = convertToRaw(contentState).blocks
+    // const getTextFormat = (state:any) => {
+    //     const contentState = state.getCurrentContent()
+    //     const rawContent = convertToRaw(contentState).blocks
 
-        let texts = ""
+    //     let texts = ""
 
-        rawContent.forEach((block:any) => {
-            texts += block.text + "\n"
-        })
+    //     rawContent.forEach((block:any) => {
+    //         texts += block.text + "\n"
+    //     })
 
-        return texts
-    }
-
-
-    const getEditorData = (state:any) => {
-        const contentState = state.getCurrentContent()
-        const rawContent = convertToRaw(contentState).blocks
-
-        let texts = ""
-
-        rawContent.forEach((block:any) => {
-            texts += block.text
-        })
-
-        return texts
-    } 
-
-    const convertToEditorData = (data:any) => {
-        const newState = ContentState.createFromText(data)
-        return EditorState.createWithContent(newState)
-    }
-
-    useEffect(() => {
-        const handleChangeStep = async() => {
-            switch(step){
-                case 1 : {
-                    const { name, description, project, date_created } = wizardDetails
-
-                    if(!name){
-                        toast("Please enter a job name")
-                        setStep(0)
-                        return
-                    }
-
-                    if(!description){
-                        toast("Please enter job description")
-                        setStep(0)
-                        return
-                    }
-
-                    if(!project){
-                        toast("Please select a project")
-                        setStep(0)
-                        return
-                    }
-
-                    // if(!variable) {
-                    //     toast("Please select a variable")
-                    //     setStep(0)
-                    //     return
-                    // }
+    //     return texts
+    // }
 
 
-                    // check if business logic is already present and has not changed
-                    const texts = getEditorData(businessLogic)
-                    const editorTexts = getEditorData(convertToEditorData(wizardDetails.businessResp))
-                    // const editorTexts = wizardDetails.businessResp
+    // const getEditorData = (state:any) => {
+    //     const contentState = state.getCurrentContent()
+    //     const rawContent = convertToRaw(contentState).blocks
 
-                    if(texts && editorTexts && texts === editorTexts){
-                        return
-                    }
+    //     let texts = ""
 
-                    setLoadingApiRequest(true)
-                    console.log("sleected job above sending business: ", selectedJob)
-                    const resp = await getBusinessLogic(selectedJob.job_id, token)
-                    const jsonResp = await resp?.json()
+    //     rawContent.forEach((block:any) => {
+    //         texts += block.text
+    //     })
 
-                    if(jsonResp.error){
-                        toast(jsonResp.message)
-                        setStep(0)
-                        setLoadingApiRequest(false)
-                        return
-                    }else{
-                        const newState = ContentState.createFromText(jsonResp.message)
-                        setBusinessLogic(EditorState.createWithContent(newState))
-                        setLoadingApiRequest(false)
-                        setWizardDetails(state => {
-                            return {
-                                ...state,
-                                businessResp : jsonResp.message
-                                // businessResp: getEditorData(businessLogic)
-                            }
-                        })
+    //     return texts
+    // } 
 
-                        // add job data to redux store
-                        dispatch(addOne({ 
-                            job_id : selectedJob.job_id, 
-                            name: wizardDetails.name, 
-                            description: wizardDetails.description, 
-                            project_id: wizardDetails.project,
-                            date_created: wizardDetails.date_created,
-                            business_logic: jsonResp.message,
-                            project_name: wizardDetails.project_name,
-                            // variable_id: wizardDetails.variable,
-                            // variable_name: wizardDetails.variable_name
-                        }))
-                    }
+    // const convertToEditorData = (data:any) => {
+    //     const newState = ContentState.createFromText(data)
+    //     return EditorState.createWithContent(newState)
+    // }
 
-                    break;
-                }
+    // useEffect(() => {
+    //     const handleChangeStep = async() => {
+    //         switch(step){
+    //             case 1 : {
+    //                 const { name, description, project, date_created } = wizardDetails
 
-                case 2 : {
-                    const oldText = getEditorData(businessLogic)
-                    const editorTexts = getEditorData(convertToEditorData(wizardDetails.businessResp))
-                    // const editorTexts = wizardDetails.businessResp
+    //                 if(!name){
+    //                     toast("Please enter a job name")
+    //                     setStep(0)
+    //                     return
+    //                 }
 
-                    // if previous step data has not changed and current data is present, don't fetch
-                    const currentStepData = getEditorData(programSummary)
+    //                 if(!description){
+    //                     toast("Please enter job description")
+    //                     setStep(0)
+    //                     return
+    //                 }
+
+    //                 if(!project){
+    //                     toast("Please select a project")
+    //                     setStep(0)
+    //                     return
+    //                 }
+
+    //                 // if(!variable) {
+    //                 //     toast("Please select a variable")
+    //                 //     setStep(0)
+    //                 //     return
+    //                 // }
+
+
+    //                 // check if business logic is already present and has not changed
+    //                 const texts = getEditorData(businessLogic)
+    //                 const editorTexts = getEditorData(convertToEditorData(wizardDetails.businessResp))
+    //                 // const editorTexts = wizardDetails.businessResp
+
+    //                 if(texts && editorTexts && texts === editorTexts){
+    //                     return
+    //                 }
+
+    //                 setLoadingApiRequest(true)
+    //                 const resp = await getBusinessLogic(project,name,description, date_created, token)
+    //                 const jsonResp = await resp?.json()
+
+    //                 if(jsonResp.error){
+    //                     toast(jsonResp.message)
+    //                     setStep(0)
+    //                     setLoadingApiRequest(false)
+    //                     return
+    //                 }else{
+    //                     const newState = ContentState.createFromText(jsonResp.message)
+    //                     setBusinessLogic(EditorState.createWithContent(newState))
+    //                     setLoadingApiRequest(false)
+    //                     setWizardDetails(state => {
+    //                         return {
+    //                             ...state,
+    //                             jobId: jsonResp.id,
+    //                             businessResp : jsonResp.message
+    //                             // businessResp: getEditorData(businessLogic)
+    //                         }
+    //                     })
+
+    //                     // add job data to redux store
+    //                     dispatch(addOne({ 
+    //                         job_id : jsonResp.id, 
+    //                         name: wizardDetails.name, 
+    //                         description: wizardDetails.description, 
+    //                         project_id: wizardDetails.project,
+    //                         date_created: wizardDetails.date_created,
+    //                         business_logic: jsonResp.message,
+    //                         project_name: wizardDetails.project_name,
+    //                         // variable_id: wizardDetails.variable,
+    //                         // variable_name: wizardDetails.variable_name
+    //                     }))
+    //                 }
+
+    //                 break;
+    //             }
+
+    //             case 2 : {
+    //                 const oldText = getEditorData(businessLogic)
+    //                 const editorTexts = getEditorData(convertToEditorData(wizardDetails.businessResp))
+    //                 // const editorTexts = wizardDetails.businessResp
+
+    //                 // if previous step data has not changed and current data is present, don't fetch
+    //                 const currentStepData = getEditorData(programSummary)
                     
-                    if(currentStepData && oldText && editorTexts && oldText === editorTexts){
-                        break;
-                    }
+    //                 if(currentStepData && oldText && editorTexts && oldText === editorTexts){
+    //                     break;
+    //                 }
                     
-                    setLoadingApiRequest(true)
-                    const texts = getTextFormat(businessLogic)
-                    const resp = await getProgramSummary(wizardDetails.jobId, texts, token)
-                    const jsonResp = await resp?.json()
+    //                 setLoadingApiRequest(true)
+    //                 const texts = getTextFormat(businessLogic)
+    //                 const resp = await getProgramSummary(wizardDetails.jobId, texts, token)
+    //                 const jsonResp = await resp?.json()
 
-                    // need to update businessLogic state with state data
-                    if(jsonResp.error){
-                        toast(jsonResp.message)
-                        setStep(1)
-                        setLoadingApiRequest(false)
-                        return
-                    }else {
-                        const newState = ContentState.createFromText(jsonResp.message)
-                        setProgramSummary(EditorState.createWithContent(newState))
-                        setLoadingApiRequest(false)
-                        setWizardDetails((state:any) => {
-                            return {
-                                ...state,
-                                businessResp: texts,
-                                programSummaryResp : jsonResp.message
-                                // programSummaryResp : getEditorData(programSummary)
-                            }
-                        })
-                        // update job data in redux store
-                        dispatch(updateOne({job_id : wizardDetails.jobId, program_summary : jsonResp.message}))
-                    }
+    //                 // need to update businessLogic state with state data
+    //                 if(jsonResp.error){
+    //                     toast(jsonResp.message)
+    //                     setStep(1)
+    //                     setLoadingApiRequest(false)
+    //                     return
+    //                 }else {
+    //                     const newState = ContentState.createFromText(jsonResp.message)
+    //                     setProgramSummary(EditorState.createWithContent(newState))
+    //                     setLoadingApiRequest(false)
+    //                     setWizardDetails((state:any) => {
+    //                         return {
+    //                             ...state,
+    //                             businessResp: texts,
+    //                             programSummaryResp : jsonResp.message
+    //                             // programSummaryResp : getEditorData(programSummary)
+    //                         }
+    //                     })
+    //                     // update job data in redux store
+    //                     dispatch(updateOne({job_id : wizardDetails.jobId, program_summary : jsonResp.message}))
+    //                 }
 
-                    break;
+    //                 break;
 
-                }
+    //             }
 
-                case 3 : {
-                    const oldText = getEditorData(programSummary)
-                    const editorTexts = getEditorData(convertToEditorData(wizardDetails.programSummaryResp))
-                    // const editorTexts = wizardDetails.programSummaryResp                    
-                    // if previous step data has not changed and current data is present, don't fetch
-                    // const currentStepData = getEditorData(hyperbatchCode)
-                    const currentStepData = wizardDetails.hyperBatchResp
+    //             case 3 : {
+    //                 const oldText = getEditorData(programSummary)
+    //                 const editorTexts = getEditorData(convertToEditorData(wizardDetails.programSummaryResp))
+    //                 // const editorTexts = wizardDetails.programSummaryResp                    
+    //                 // if previous step data has not changed and current data is present, don't fetch
+    //                 // const currentStepData = getEditorData(hyperbatchCode)
+    //                 const currentStepData = wizardDetails.hyperBatchResp
 
                     
-                    if(currentStepData && oldText && editorTexts && oldText === editorTexts){
-                        return
-                    }
+    //                 if(currentStepData && oldText && editorTexts && oldText === editorTexts){
+    //                     return
+    //                 }
                     
-                    setLoadingApiRequest(true)
-                    const texts = getTextFormat(programSummary)
-                    const resp = await getHyperbatchCode(wizardDetails.jobId, texts, token)
-                    const jsonResp = await resp?.json()
+    //                 setLoadingApiRequest(true)
+    //                 const texts = getTextFormat(programSummary)
+    //                 const resp = await getHyperbatchCode(wizardDetails.jobId, texts, token)
+    //                 const jsonResp = await resp?.json()
 
-                    // need to update businessLogic state with state data
-                    if(jsonResp.error){
-                        toast(jsonResp.message)
-                        setStep(2)
-                        setLoadingApiRequest(false)
-                        return
-                    }else {
-                        // const newState = ContentState.createFromText(jsonResp.message)
-                        // setHyperbatchCode(EditorState.createWithContent(newState))
-                        setHyperbatchCode(jsonResp.message)
-                        setLoadingApiRequest(false)
-                        setWizardDetails((state:any) => {
-                            return {
-                                ...state,
-                                programSummaryResp: texts,
-                                hyperBatchResp : jsonResp.message
-                                // hyperBatchResp : getEditorData(hyperbatchCode)
-                            }
-                        })
+    //                 // need to update businessLogic state with state data
+    //                 if(jsonResp.error){
+    //                     toast(jsonResp.message)
+    //                     setStep(2)
+    //                     setLoadingApiRequest(false)
+    //                     return
+    //                 }else {
+    //                     // const newState = ContentState.createFromText(jsonResp.message)
+    //                     // setHyperbatchCode(EditorState.createWithContent(newState))
+    //                     setHyperbatchCode(jsonResp.message)
+    //                     setLoadingApiRequest(false)
+    //                     setWizardDetails((state:any) => {
+    //                         return {
+    //                             ...state,
+    //                             programSummaryResp: texts,
+    //                             hyperBatchResp : jsonResp.message
+    //                             // hyperBatchResp : getEditorData(hyperbatchCode)
+    //                         }
+    //                     })
 
-                        // update job data in redux store
-                        dispatch(updateOne({job_id : wizardDetails.jobId, sql_code : jsonResp.message}))
-                    }
+    //                     // update job data in redux store
+    //                     dispatch(updateOne({job_id : wizardDetails.jobId, sql_code : jsonResp.message}))
+    //                 }
 
-                    break;
-                }
+    //                 break;
+    //             }
 
-                case 4 : {
-                    // prev step data
-                    const oldTexts = wizardDetails.hyperBatchResp
-                    const editorTexts = hyperbatchCode
+    //             case 4 : {
+    //                 // prev step data
+    //                 const oldTexts = wizardDetails.hyperBatchResp
+    //                 const editorTexts = hyperbatchCode
 
-                    // if previous step data has not changed and current data is present, don't fetch
-                    const currentStepData = refinedHyperbatchCode
+    //                 // if previous step data has not changed and current data is present, don't fetch
+    //                 const currentStepData = refinedHyperbatchCode
 
-                    if(currentStepData && oldTexts && editorTexts && oldTexts === editorTexts){
-                        return
-                    }
+    //                 if(currentStepData && oldTexts && editorTexts && oldTexts === editorTexts){
+    //                     return
+    //                 }
                     
-                    setLoadingApiRequest(true)
-                    // const texts = getTextFormat(hyperbatchCode)
-                    const resp = await getRefinedHyperbatchCode(wizardDetails.jobId,  hyperbatchCode, token) /*texts)*/
-                    const jsonResp = await resp?.json()
+    //                 setLoadingApiRequest(true)
+    //                 // const texts = getTextFormat(hyperbatchCode)
+    //                 const resp = await getRefinedHyperbatchCode(wizardDetails.jobId,  hyperbatchCode, token) /*texts)*/
+    //                 const jsonResp = await resp?.json()
 
-                    // need to update businessLogic state with state data
-                    if(jsonResp.error){
-                        toast(jsonResp.message)
-                        setStep(3)
-                        setLoadingApiRequest(false)
-                        return
-                    }else {
-                        // const newState = ContentState.createFromText(jsonResp.message)
-                        // setRefinedHyperbatchCode(EditorState.createWithContent(newState))
-                        const { message } = jsonResp
-                        setRefinedHyperbatchCode(message)
-                        setLoadingApiRequest(false)
+    //                 // need to update businessLogic state with state data
+    //                 if(jsonResp.error){
+    //                     toast(jsonResp.message)
+    //                     setStep(3)
+    //                     setLoadingApiRequest(false)
+    //                     return
+    //                 }else {
+    //                     // const newState = ContentState.createFromText(jsonResp.message)
+    //                     // setRefinedHyperbatchCode(EditorState.createWithContent(newState))
+    //                     const { message } = jsonResp
+    //                     setRefinedHyperbatchCode(message)
+    //                     setLoadingApiRequest(false)
 
-                        // also updating prev step data, that might have changed
-                        setWizardDetails((state:any) => {
-                            return {
-                                ...state,
-                                hyperBatchResp: hyperbatchCode,
-                                refinedHyperBatchResp : message
-                            }
-                        })
+    //                     // also updating prev step data, that might have changed
+    //                     setWizardDetails((state:any) => {
+    //                         return {
+    //                             ...state,
+    //                             hyperBatchResp: hyperbatchCode,
+    //                             refinedHyperBatchResp : message
+    //                         }
+    //                     })
 
-                        // update job data in redux store
-                        dispatch(updateOne({job_id : wizardDetails.jobId, refined_sql_code : message}))
-                    }
+    //                     // update job data in redux store
+    //                     dispatch(updateOne({job_id : wizardDetails.jobId, refined_sql_code : message}))
+    //                 }
 
-                    break;
-                }
+    //                 break;
+    //             }
 
-                case 5 : {
-                    // check if there is any change in previous refined code and refined code editor
-                    const oldTexts = wizardDetails.refinedHyperBatchResp
-                    const editorTexts = refinedHyperbatchCode
+    //             case 5 : {
+    //                 // check if there is any change in previous refined code and refined code editor
+    //                 const oldTexts = wizardDetails.refinedHyperBatchResp
+    //                 const editorTexts = refinedHyperbatchCode
 
-                    const currentStepData = finalCode
+    //                 const currentStepData = finalCode
 
-                    if(currentStepData && oldTexts && editorTexts && oldTexts === editorTexts){
-                        return
-                    }
+    //                 if(currentStepData && oldTexts && editorTexts && oldTexts === editorTexts){
+    //                     return
+    //                 }
 
-                    // fetch final code 
-                    //  UNCOMMENT THIS
-                    setLoadingApiRequest(true)
-                    const resp = await getFinalHyperbatchCode(wizardDetails.jobId, editorTexts, token)
-                    const jsonResp = await resp?.json()
+    //                 // fetch final code 
+    //                 //  UNCOMMENT THIS
+    //                 setLoadingApiRequest(true)
+    //                 const resp = await getFinalHyperbatchCode(wizardDetails.jobId, editorTexts, token)
+    //                 const jsonResp = await resp?.json()
 
-                    if(jsonResp.error){
-                        toast(jsonResp.message)
-                        setStep(3)
-                        setLoadingApiRequest(false)
-                        return
-                    }else{
-                        // update state
-                        const { message } = jsonResp
-                        setFinalCode(message)
-                        setLoadingApiRequest(false)
-                        setWizardDetails((state:any) => {
-                            return {
-                                ...state,
-                                refinedHyperBatchResp : editorTexts,
-                                finalCodeResp: message
-                                // refinedHyperBatchResp : getEditorData(refinedHyperbatchCode)
-                            }
-                        })
+    //                 if(jsonResp.error){
+    //                     toast(jsonResp.message)
+    //                     setStep(3)
+    //                     setLoadingApiRequest(false)
+    //                     return
+    //                 }else{
+    //                     // update state
+    //                     const { message } = jsonResp
+    //                     setFinalCode(message)
+    //                     setLoadingApiRequest(false)
+    //                     setWizardDetails((state:any) => {
+    //                         return {
+    //                             ...state,
+    //                             refinedHyperBatchResp : editorTexts,
+    //                             finalCodeResp: message
+    //                             // refinedHyperBatchResp : getEditorData(refinedHyperbatchCode)
+    //                         }
+    //                     })
 
-                         // update job data in redux store
-                         dispatch(updateOne({job_id : wizardDetails.jobId, final_code : message}))
-                    }
-                    break; 
+    //                      // update job data in redux store
+    //                      dispatch(updateOne({job_id : wizardDetails.jobId, final_code : message}))
+    //                 }
+    //                 break; 
 
-                }
-            }
-        }
+    //             }
+    //         }
+    //     }
 
-        handleChangeStep()
+    //     handleChangeStep()
 
-    }, [step])
+    // }, [step])
 
-    const downloadFile = () => {
-        let contnentState:any
-        let rawContentState:any
-        let fileName = ""
-        let texts = ""
+    // const downloadFile = () => {
+    //     let contnentState:any
+    //     let rawContentState:any
+    //     let fileName = ""
+    //     let texts = ""
 
-        switch(step){
-            case 1 : {
-                contnentState = businessLogic.getCurrentContent()
-                rawContentState = convertToRaw(contnentState).blocks
-                fileName = "business_logic.txt"
-                break;
-            }
-            case 2 : {
-                contnentState = programSummary.getCurrentContent()
-                rawContentState = convertToRaw(contnentState).blocks
-                fileName = "program_summary.txt"
-                break;
-            }
-            case 3 : {
-                // step 3,4,5 doesn't use draft text editor, pass the states directly
-                fileName = "hyperbatch_code.txt"
-                texts = hyperbatchCode
-                break;
-            }
-            case 4 : {
+    //     switch(step){
+    //         case 1 : {
+    //             contnentState = businessLogic.getCurrentContent()
+    //             rawContentState = convertToRaw(contnentState).blocks
+    //             fileName = "business_logic.txt"
+    //             break;
+    //         }
+    //         case 2 : {
+    //             contnentState = programSummary.getCurrentContent()
+    //             rawContentState = convertToRaw(contnentState).blocks
+    //             fileName = "program_summary.txt"
+    //             break;
+    //         }
+    //         case 3 : {
+    //             // step 3,4,5 doesn't use draft text editor, pass the states directly
+    //             fileName = "hyperbatch_code.txt"
+    //             texts = hyperbatchCode
+    //             break;
+    //         }
+    //         case 4 : {
                
-                fileName = "refined_hyperbatch_code.txt"
-                texts = refinedHyperbatchCode
-                break;
-            }
-            case 5 : {
+    //             fileName = "refined_hyperbatch_code.txt"
+    //             texts = refinedHyperbatchCode
+    //             break;
+    //         }
+    //         case 5 : {
                 
-                fileName = "final.txt"
-                texts = finalCode
-                break;
-            }
-        }
+    //             fileName = "final.txt"
+    //             texts = finalCode
+    //             break;
+    //         }
+    //     }
 
-        if(rawContentState){
-            rawContentState.forEach((block:any) => {
-                texts += block.text + "\n\n";
-            })
-        }
+    //     if(rawContentState){
+    //         rawContentState.forEach((block:any) => {
+    //             texts += block.text + "\n\n";
+    //         })
+    //     }
 
-        downloadText(fileName, texts)
-    }
+    //     downloadText(fileName, texts)
+    // }
 
     // const getBlockTexts = (contentState:any) => {
     //     let texts = ""
@@ -656,75 +656,75 @@ export const CreateWizard = () => {
     // }
 
 
-   const incrementStep = () => {
-    setStep(step => step + 1)
-   }
+//    const incrementStep = () => {
+//     setStep(step => step + 1)
+//    }
 
-   const decrementStep = () => {
-    setStep(step => step - 1)
-   }
+//    const decrementStep = () => {
+//     setStep(step => step - 1)
+//    }
 
 
 
-    const getWizardComponent = (step:number) => {
-        if(step === 0){
-            return (
-                <div className="h-[40vh] flex justify-around items-center">
-                    Click on next to start
-                </div>
-            )
-        }
+//     const getWizardComponent = (step:number) => {
+//         if(step === 0){
+//             return (
+//                 <div className="h-[40vh] flex justify-around items-center">
+//                     Click on next to start
+//                 </div>
+//             )
+//         }
 
-        if(step === 1) {
-            return <TextEditor editorState={businessLogic}  setEditorState={setBusinessLogic} styleClasses="h-[40vh]"/>
+//         if(step === 1) {
+//             return <TextEditor editorState={businessLogic}  setEditorState={setBusinessLogic} styleClasses="h-[40vh]"/>
 
-        }
+//         }
 
-        if(step === 2) {
-            return <TextEditor editorState={programSummary} setEditorState={setProgramSummary} styleClasses="h-[40vh]"/>
+//         if(step === 2) {
+//             return <TextEditor editorState={programSummary} setEditorState={setProgramSummary} styleClasses="h-[40vh]"/>
 
-        }
+//         }
         
-        if(step === 3) {
-            // return <TextEditor editorState={hyperbatchCode} setEditorState={setHyperbatchCode} styleClasses="h-[40vh]"/>
-            return <CodeEditor value={wizardDetails.hyperBatchResp} onChange={(e) => setHyperbatchCode(e.target.value)}  language="sql" padding={15}
-                    style={{
-                        overflowY: "scroll",
-                        height: "40vh",
-                        backgroundColor: "black",
-                        borderRadius: "0px",
-                        fontFamily:
-                            "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-                    }} />
+//         if(step === 3) {
+//             // return <TextEditor editorState={hyperbatchCode} setEditorState={setHyperbatchCode} styleClasses="h-[40vh]"/>
+//             return <CodeEditor value={wizardDetails.hyperBatchResp} onChange={(e) => setHyperbatchCode(e.target.value)}  language="sql" padding={15}
+//                     style={{
+//                         overflowY: "scroll",
+//                         height: "40vh",
+//                         backgroundColor: "black",
+//                         borderRadius: "0px",
+//                         fontFamily:
+//                             "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+//                     }} />
 
-        }
+//         }
 
-        if(step === 4) {
-            // return <TextEditor editorState={refinedHyperbatchCode} setEditorState={setRefinedHyperbatchCode} styleClasses="h-[40vh]"/>
-            return <CodeEditor value={wizardDetails.refinedHyperBatchResp} onChange={(e) => setRefinedHyperbatchCode(e.target.value)}  language="sql" padding={15}
-                    style={{
-                        overflowY: "scroll",
-                        height: "40vh",
-                        backgroundColor: "black",
-                        borderRadius: "0px",
-                        fontFamily:
-                            "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-                    }} />
-        }
+//         if(step === 4) {
+//             // return <TextEditor editorState={refinedHyperbatchCode} setEditorState={setRefinedHyperbatchCode} styleClasses="h-[40vh]"/>
+//             return <CodeEditor value={wizardDetails.refinedHyperBatchResp} onChange={(e) => setRefinedHyperbatchCode(e.target.value)}  language="sql" padding={15}
+//                     style={{
+//                         overflowY: "scroll",
+//                         height: "40vh",
+//                         backgroundColor: "black",
+//                         borderRadius: "0px",
+//                         fontFamily:
+//                             "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+//                     }} />
+//         }
 
-        if(step === 5) {
-            // return <TextEditor editorState={refinedHyperbatchCode} setEditorState={setRefinedHyperbatchCode} styleClasses="h-[40vh]"/>
-            return <CodeEditor value={wizardDetails.finalCodeResp} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
-                    style={{
-                        overflowY: "scroll",
-                        height: "40vh",
-                        backgroundColor: "black",
-                        borderRadius: "0px",
-                        fontFamily:
-                            "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-                    }} />
-        }
-}
+//         if(step === 5) {
+//             // return <TextEditor editorState={refinedHyperbatchCode} setEditorState={setRefinedHyperbatchCode} styleClasses="h-[40vh]"/>
+//             return <CodeEditor value={wizardDetails.finalCodeResp} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
+//                     style={{
+//                         overflowY: "scroll",
+//                         height: "40vh",
+//                         backgroundColor: "black",
+//                         borderRadius: "0px",
+//                         fontFamily:
+//                             "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+//                     }} />
+//         }
+// }
 
 
 const handleDeleteJob = async (job_id: string) => {
@@ -795,7 +795,7 @@ const handleCreateJob = async () => {
     navigate("/jobs")
 }
 
-
+console.log("SELECTED JOB", selectedJob)
 const handleUpdateJob = async () => {
     const { jobId, name, description } = wizardDetails
 
@@ -811,28 +811,41 @@ const handleUpdateJob = async () => {
         return
     }
 
-    setLoading(true)
-    const resp:any = await updatejob(jobId, name, description, token)
-    const jsonResp = await resp.json()
+    try{
+        setLoading(true)
+        const resp:any = await updatejob(jobId, name, description, token)
+        if(!resp.ok){
+            toast.error(resp.statusText)
+            setLoading(false)
+            return;
+        }
 
-    if(jsonResp.error){
-        toast(jsonResp.message)
+
+        const jsonResp = await resp.json()
+    
+
+        console.log("resp", resp)
+        if(jsonResp.error){
+            toast(jsonResp.message)
+            setLoading(false)
+            return
+        }
         setLoading(false)
-        return
+    
+        dispatch(updateOne({
+            job_id: selectedJob.job_id,
+            project_id: selectedJob.project,
+            project_name: selectedJob.project_name,
+            name : name,
+            description: description,
+            
+        }))
+        navigate("/jobs")
+    }catch{
+        toast.error("Something went wrong")
     }
-    setLoading(false)
-
-    dispatch(updateOne({
-        job_id: selectedJob.job_id,
-        project_id: selectedJob.project,
-        project_name: selectedJob.project_name,
-        name : name,
-        description: description,
-        
-    }))
 
 
-    navigate("/jobs")
 }
 
 
