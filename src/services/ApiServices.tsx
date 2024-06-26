@@ -11,7 +11,8 @@ import { GET_ALL_JOBS,
   FINAL_SQL_CODE,
   GET_ALL_VARIABLES,
 CREATE_VARIABLE,
-CREATE_JOB } 
+CREATE_JOB,
+UPDATE_JOB } 
     from "./urls";
 
 interface IJobs {
@@ -182,6 +183,7 @@ export async function createProject(
     job_description : string,
     date_created : string,
     project_id : string,
+    project_name: string,
     token:string
   ) {
     try {
@@ -191,7 +193,34 @@ export async function createProject(
           job_name,
           job_description,
           date_created,
-          project_id
+          project_id,
+          project_name
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Cookies: `session_id=${token}`,
+        },
+        credentials: "include",
+      });
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  export async function updatejob(
+    job_id : string,
+    job_name : string,
+    job_description : string,
+    token:string
+  ) {
+    try {
+      const res = fetch(UPDATE_JOB, {
+        method: "POST",
+        body: JSON.stringify({
+          job_id,
+          job_name,
+          job_description
         }),
         headers: {
           "Content-Type": "application/json",
