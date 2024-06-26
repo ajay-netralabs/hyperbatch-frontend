@@ -10,17 +10,22 @@ import { useNavigate, useParams  } from "react-router-dom";
 
 import { TextEditor } from "../../components";
 import { EditorState, ContentState, convertToRaw } from "draft-js";
-import { Button } from "../../components/form";
+import { Button, InputText } from "../../components/form";
 import { toast } from "react-toastify";
 import Cookies from 'universal-cookie';
-import { getBusinessLogic, getFinalHyperbatchCode, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode } from "../../services/ApiServices";
+import { autoFix, getBusinessLogic, getFinalHyperbatchCode, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, selfAssessment } from "../../services/ApiServices";
 import { addOne, updateOne } from "../../store/slices/job.slice";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { downloadText } from "download.js";
 
+import { useDisclosure } from '@mantine/hooks';
+import { Modal } from '@mantine/core';
+
 export const RunJob = () => {
+
+    const [opened, modalFunctions ] = useDisclosure(false);
 
     const cookies = new Cookies(null, { path: '/' });
     const token = cookies.get("session_id")
@@ -282,10 +287,18 @@ export const RunJob = () => {
                     // if previous step data has not changed and current data is present, don't fetch
                     const currentStepData = refinedHyperbatchCode
 
+                    console.log("currentStepData", currentStepData)
+                    console.log("oldTexts", oldTexts)
+                    console.log("editorTexts", editorTexts)
+
+                    console.log("is equal both texts", oldTexts === editorTexts)
+
                     if(currentStepData && oldTexts && editorTexts && oldTexts === editorTexts){
                         return
                     }
                     
+                    if([]) return
+
                     setLoadingApiRequest(true)
                     // const texts = getTextFormat(hyperbatchCode)
                     const resp = await getRefinedHyperbatchCode(currentJob.job_id,  hyperbatchCode, token) /*texts)*/
@@ -401,6 +414,7 @@ export const RunJob = () => {
         }
 
         if(step === 3){
+            console.log("hyperbatch")
             return <CodeEditor value={currentJob.sql_code} onChange={(e) => setHyperbatchCode(e.target.value)}  language="sql" padding={15}
                     style={{
                         overflowY: "scroll",
@@ -416,7 +430,7 @@ export const RunJob = () => {
 
         if(step >= 4){
             // return <TextEditor editorState={refinedHyperbatchCode} setEditorState={setRefinedHyperbatchCode} styleClasses="h-[40vh]"/>
-            return <CodeEditor value={currentJob.refined_sql_code} onChange={(e) => setHyperbatchCode(e.target.value)}  language="sql" padding={15}
+            return <CodeEditor value={currentJob.refined_sql_code} onChange={(e) => setRefinedHyperbatchCode(e.target.value)}  language="sql" padding={15}
             style={{
                 overflowY: "scroll",
                 height: "40vh",
@@ -435,7 +449,7 @@ export const RunJob = () => {
 
     const getFinalOutputEditor = () => {
         if(step >= 5){
-            return <CodeEditor value={currentJob.final_code}  language="sql" padding={15}
+            return <CodeEditor value={currentJob.final_code} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
             style={{
                 overflowY: "scroll",
                 height: "40vh",
@@ -445,7 +459,17 @@ export const RunJob = () => {
                     "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
             }} />
         }else{
-            <div className="h-[40vh] flex justify-around items-center">&nbsp;</div>
+            // <div className="h-[40vh] flex justify-around items-center">&nbsp;</div>
+
+            return <CodeEditor value={currentJob.final_code} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
+            style={{
+                overflowY: "scroll",
+                height: "40vh",
+                backgroundColor: "black",
+                borderRadius: "0px",
+                fontFamily:
+                    "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+            }} />
         }
     }
 
@@ -502,12 +526,59 @@ export const RunJob = () => {
     }
 
     const handleAutoFix = async () => {
+        try{
+            const res = await autoFix(finalCode, currentJob.job_id, "", "", token)
+            
+            if(!res?.ok){
+                toast.error(res?.statusText)
+                return;
+            }
 
+            const jsonResp = await res.json()
+
+            if(jsonResp.error){
+                toast.error(jsonResp.message)
+                return;
+            }
+
+            // if ok then what?
+
+        }catch{
+            toast.error("Something went wrong")
+        }
     }
 
     const handleSelfAssesment = async () => {
-        
+        try{
+
+            const res = await selfAssessment(finalCode, currentJob.job_id, token)
+
+            if(!res?.ok){
+                toast.error(res?.statusText)
+                return;
+            }
+
+            const jsonResp = await res.json()
+
+            if(jsonResp.error){
+                toast.error(jsonResp.message)
+                return;
+            }
+
+            console.log("jsonResp", jsonResp) 
+
+            // disable autofix if suggetion returns no problems found 
+            // if ok then what?
+
+
+        }catch{
+            toast.error("Something went wrong")
+        }
     }
+
+
+    const [feedback, setFeedback] = useState<string>("")
+    const [suggestion, setSuggestion] = useState<string>("")
 
     return (
         <div className={`project-container ${open ? "sidenav-open" : ""}`}>
@@ -547,7 +618,8 @@ export const RunJob = () => {
             <>{console.log("step", step)}</>
             {/* editors */}
             <div className="editor-container flex justify-between gap-4 mt-5">
-                {step <= 5 ? (
+                {/* step <= 5 ? */}
+                {false ? (
                     <>
                         <div className="w-[50%] border border-black bg-base-100 ">
                             <div className="border-b border-black p-2">Input Files :</div>
@@ -593,7 +665,7 @@ export const RunJob = () => {
                                     <div>status here</div>
                                     <div className="flex flex-col gap-1">
                                         <Button size="sm" variant="accent" styleClasses="rounded-none text-white" clickFn={() => {}}>Accept Recommendations</Button>
-                                        <Button size="sm" variant="accent" styleClasses="rounded-none text-white" clickFn={() => {}}>Suggest Fixes</Button>
+                                        <Button size="sm" variant="accent" styleClasses="rounded-none text-white" clickFn={handleSelfAssesment}>Suggest Fixes</Button>
                                     </div>
                                 </div>
                             </div>
@@ -634,6 +706,19 @@ export const RunJob = () => {
                    )}
                 </div>
             </div>
+
+
+            <Modal opened={opened} onClose={modalFunctions.close} title="Suggest Fixes" centered size={"70%"}>
+                <div className="flex flex-col gap-2">
+                    {getFinalOutputEditor()}
+                    <InputText placeholder="Feedback" styleClass="input-sm" value={feedback} changeFn={(e:any) => setFeedback(e.target.value)} />
+                    <InputText placeholder="Suggestions" styleClass="input-sm" value={suggestion} changeFn={(e:any) => setSuggestion(e.target.value)} />
+                   <div className="flex justify-end">
+                        <Button size="sm" variant="accent" styleClasses="text-white rounded-none" clickFn={handleAutoFix}>Generate</Button>
+                   </div>
+                </div>
+            </Modal>
+
         </div>
     )
 }
