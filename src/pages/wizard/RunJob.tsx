@@ -170,23 +170,16 @@ export const RunJob = () => {
                         setCurrentJob((state:any) => {
                             return {
                                 ...state,
-                                jobId: jsonResp.id,
+                                // jobId: jsonResp.id,
                                 business_logic : jsonResp.message
                                 // businessResp: getEditorData(businessLogic)
                             }
                         })
 
                         // add job data to redux store
-                        dispatch(addOne({ 
-                            job_id : jsonResp.id, 
-                            name: currentJob.name, 
-                            description: currentJob.description, 
-                            project_id: currentJob.project,
-                            date_created: currentJob.date_created,
-                            business_logic: jsonResp.message,
-                            project_name: currentJob.project_name,
-                            variable_id: currentJob.variable,
-                            variable_name: currentJob.variable_name
+                        dispatch(updateOne({ 
+                            job_id, 
+                            business_logic: jsonResp.message
                         }))
                     }
 
@@ -207,7 +200,7 @@ export const RunJob = () => {
                     
                     setLoadingApiRequest(true)
                     const texts = getTextFormat(businessLogic)
-                    const resp = await getProgramSummary(currentJob.jobId, texts, token)
+                    const resp = await getProgramSummary(currentJob.job_id, texts, token)
                     const jsonResp = await resp?.json()
 
                     // need to update businessLogic state with state data
@@ -229,7 +222,7 @@ export const RunJob = () => {
                             }
                         })
                         // update job data in redux store
-                        dispatch(updateOne({job_id : currentJob.jobId, program_summary : jsonResp.message}))
+                        dispatch(updateOne({job_id : currentJob.job_id, program_summary : jsonResp.message}))
                     }
 
                     break;
@@ -251,7 +244,7 @@ export const RunJob = () => {
                     
                     setLoadingApiRequest(true)
                     const texts = getTextFormat(programSummary)
-                    const resp = await getHyperbatchCode(currentJob.jobId, texts, token)
+                    const resp = await getHyperbatchCode(currentJob.job_id, texts, token)
                     const jsonResp = await resp?.json()
 
                     // need to update businessLogic state with state data
@@ -275,7 +268,7 @@ export const RunJob = () => {
                         })
 
                         // update job data in redux store
-                        dispatch(updateOne({job_id : currentJob.jobId, sql_code : jsonResp.message}))
+                        dispatch(updateOne({job_id : currentJob.job_id, sql_code : jsonResp.message}))
                     }
 
                     break;
@@ -295,7 +288,7 @@ export const RunJob = () => {
                     
                     setLoadingApiRequest(true)
                     // const texts = getTextFormat(hyperbatchCode)
-                    const resp = await getRefinedHyperbatchCode(currentJob.jobId,  hyperbatchCode, token) /*texts)*/
+                    const resp = await getRefinedHyperbatchCode(currentJob.job_id,  hyperbatchCode, token) /*texts)*/
                     const jsonResp = await resp?.json()
 
                     // need to update businessLogic state with state data
@@ -321,7 +314,7 @@ export const RunJob = () => {
                         })
 
                         // update job data in redux store
-                        dispatch(updateOne({job_id : currentJob.jobId, refined_sql_code : message}))
+                        dispatch(updateOne({job_id : currentJob.job_id, refined_sql_code : message}))
                     }
 
                     break;
@@ -341,7 +334,7 @@ export const RunJob = () => {
                     // fetch final code 
                     //  UNCOMMENT THIS
                     setLoadingApiRequest(true)
-                    const resp = await getFinalHyperbatchCode(currentJob.jobId, editorTexts, token)
+                    const resp = await getFinalHyperbatchCode(currentJob.job_id, editorTexts, token)
                     const jsonResp = await resp?.json()
 
                     if(jsonResp.error){
@@ -364,7 +357,7 @@ export const RunJob = () => {
                         })
 
                          // update job data in redux store
-                         dispatch(updateOne({job_id : currentJob.jobId, final_code : message}))
+                         dispatch(updateOne({job_id : currentJob.job_id, final_code : message}))
                     }
                     break; 
 
@@ -551,7 +544,7 @@ export const RunJob = () => {
                     <li className={`step text-xs ${step > 5 ? "step-primary" : ""}`}></li>
                 </ul>
             </div>
-
+            <>{console.log("step", step)}</>
             {/* editors */}
             <div className="editor-container flex justify-between gap-4 mt-5">
                 {step <= 5 ? (
@@ -574,7 +567,7 @@ export const RunJob = () => {
                         <div className="w-[50%] border border-black bg-base-100">
                             <div className="border-b border-black p-2">Expected Output Files :</div>
                             <div className="">
-                                {step === 6 && loadingApiRequest ? (
+                                {step === 5 && loadingApiRequest ? (
                                     <div className="h-[40vh] mt-2 flex justify-around items-center">
                                             <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
                                         </div>
