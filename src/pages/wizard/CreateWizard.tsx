@@ -5,7 +5,7 @@ import { TextEditor } from "../../components/index";
 
 import "./wizard.css"
 import { useDispatch, useSelector } from "react-redux";
-import { getAllProjects, getBusinessLogic, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, getAllJobs ,getFinalHyperbatchCode, getAllVariables, deleteData, createJob } from "../../services/ApiServices";
+import { getAllProjects, getBusinessLogic, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, getAllJobs ,getFinalHyperbatchCode, getAllVariables, deleteData, createJob, updatejob } from "../../services/ApiServices";
 import { toast } from "react-toastify";
 
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
@@ -795,8 +795,9 @@ const handleCreateJob = async () => {
     navigate("/jobs")
 }
 
+
 const handleUpdateJob = async () => {
-    const { name, description, date_created } = wizardDetails
+    const { jobId, name, description, date_created } = wizardDetails
 
     if(!name){
         toast("Please enter a job name")
@@ -811,7 +812,7 @@ const handleUpdateJob = async () => {
     }
 
     setLoading(true)
-    const resp:any = await createJob(name, description, date_created, "project was here" ,token)
+    const resp:any = await updatejob(jobId, name, description, token)
     const jsonResp = await resp.json()
 
     if(jsonResp.error){
@@ -933,7 +934,7 @@ const handleUpdateJob = async () => {
                                 {selectedJob ? (
                                     <Button size="sm" clickFn={() => handleDeleteJob(selectedJob._id)} styleClasses="btn-accent !rounded-sm text-white">Delete Job</Button>
                                 ): null}
-                                <Button size="sm" clickFn={() => handleCreateJob()} styleClasses="btn-accent !rounded-sm text-white">Save Job</Button>
+                                <Button size="sm" clickFn={() => { if (selectedJob?.length === 0){handleCreateJob()} else {handleUpdateJob()}}} styleClasses="btn-accent !rounded-sm text-white">Save Job</Button>
                             </div>
 
                             {/* <div className="flex">
