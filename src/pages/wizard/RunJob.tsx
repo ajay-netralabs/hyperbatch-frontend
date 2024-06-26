@@ -108,7 +108,7 @@ export const RunJob = () => {
     })
 
     const [finalCode, setFinalCode] = useState(() => {
-        if(currentJob && currentJob.final_code){
+        if(currentJob && currentJob.final_sql_code){
             return currentJob.final_code
         }else {
             return ""
