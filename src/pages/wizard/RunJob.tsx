@@ -13,7 +13,7 @@ import { EditorState, ContentState, convertToRaw } from "draft-js";
 import { Button, InputText } from "../../components/form";
 import { toast } from "react-toastify";
 import Cookies from 'universal-cookie';
-import { autoFix, getBusinessLogic, getFinalHyperbatchCode, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, selfAssessment } from "../../services/ApiServices";
+import { saveCode,getBusinessLogic, getFinalHyperbatchCode, getHyperbatchCode, getProgramSummary, getRefinedHyperbatchCode, autoFix, selfAssessment } from "../../services/ApiServices";
 import { addOne, updateOne } from "../../store/slices/job.slice";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 
@@ -523,6 +523,21 @@ export const RunJob = () => {
 
     const handleSave = async () => {
         // save output to aws
+        const { job_id} = currentJob
+        const resp = await saveCode(finalCode, job_id, token)
+        const jsonResp = await resp?.json()
+
+        if(jsonResp.error){
+            toast(jsonResp.message)
+            setLoadingApiRequest(false)
+            return
+        }
+        else{
+            setLoadingApiRequest(false)
+            dispatch(updateOne({job_id : currentJob.job_id, final_code : finalCode}))
+            navigate("/jobs")
+        }
+
     }
 
     const handleAutoFix = async () => {
@@ -702,7 +717,7 @@ export const RunJob = () => {
                        <Button clickFn={incrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MAX_STEP ? "btn-disabled" : ""}`}>{step === 0 ? "Run Job" : "Next"}</Button>
 
                    ) : (
-                    <Button clickFn={() => {}} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Save</Button>
+                    <Button clickFn={() => {handleSave()}} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Save</Button>
                    )}
                 </div>
             </div>
