@@ -207,7 +207,7 @@ const ProjectHome = () => {
                                              className=""
 
                                         >
-                                            {item.input_files[0]?.file}
+                                            {item.input_files?.[0]?.file}
                                             {/* {item.file_type === "aws" ? item.file.split("/")[1] : "locally uploaded"} */}
                                         </div>
                                     </div>

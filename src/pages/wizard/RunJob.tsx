@@ -35,7 +35,7 @@ export const RunJob = () => {
 
     // states
     const [currentJob, setCurrentJob] = useState<any>(() => {
-        const job = allJobs.find((jobData:any) => jobData._id === id)
+        const job = allJobs.find((jobData:any) => jobData.job_id === id || jobData._id === id)
         return job ? job : {} 
     })
     const [step, setStep] = useState<number>(() => {

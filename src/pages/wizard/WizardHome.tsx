@@ -111,7 +111,7 @@ const WizardHome = () => {
                 <div className="flex justify-end">
                     <button
                         className={`btn btn-primary ml-2 !text-xs btn-accent text-white !rounded-sm ${selectedJob ? "" : "btn-disabled"}`}
-                        onClick={() => navigate(`/jobs/run/${selectedJob._id}`)}
+                        onClick={() => navigate(`/jobs/run/${selectedJob.job_id}`)}
                     >
                         {/* <FaPlus size={14} className="" /> */}
                         <b>Run Job</b>
