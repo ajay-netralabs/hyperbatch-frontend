@@ -144,7 +144,6 @@ export const RunJob = () => {
         return texts
     }
 
-    console.log("currentJob", currentJob)
     useEffect(() => {
         const handleStepChange = async() => {
             switch(step){
@@ -246,7 +245,7 @@ export const RunJob = () => {
                     if(currentStepData && oldText && editorTexts && oldText === editorTexts){
                         return
                     }
-                    
+
                     setLoadingApiRequest(true)
                     const texts = getTextFormat(programSummary)
                     const resp = await getHyperbatchCode(currentJob.job_id, texts, token)
@@ -266,7 +265,7 @@ export const RunJob = () => {
                         setCurrentJob((state:any) => {
                             return {
                                 ...state,
-                                programSummaryResp: texts,
+                                // programSummaryResp: texts,
                                 sql_code : jsonResp.message
                                 // hyperBatchResp : getEditorData(hyperbatchCode)
                             }
@@ -287,17 +286,9 @@ export const RunJob = () => {
                     // if previous step data has not changed and current data is present, don't fetch
                     const currentStepData = refinedHyperbatchCode
 
-                    console.log("currentStepData", currentStepData)
-                    console.log("oldTexts", oldTexts)
-                    console.log("editorTexts", editorTexts)
-
-                    console.log("is equal both texts", oldTexts === editorTexts)
-
                     if(currentStepData && oldTexts && editorTexts && oldTexts === editorTexts){
                         return
                     }
-                    
-                    if([]) return
 
                     setLoadingApiRequest(true)
                     // const texts = getTextFormat(hyperbatchCode)
