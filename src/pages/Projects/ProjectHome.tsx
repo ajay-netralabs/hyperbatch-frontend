@@ -119,7 +119,7 @@ const ProjectHome = () => {
                 <div className="flex justify-end">
                         <button
                             className={`btn btn-md btn-accent text-white !text-xs !rounded-sm ${selectedProject ? "" : "btn-disabled"}`}
-                        onClick={() => handleRowClick(selectedProject._id)}
+                        onClick={() => handleRowClick(selectedProject._id || selectedProject.project_id)}
                         >
                             <b>Edit Project</b>
                         </button>

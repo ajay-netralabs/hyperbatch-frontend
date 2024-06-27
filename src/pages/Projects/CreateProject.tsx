@@ -149,8 +149,7 @@ export const CreateProject = () => {
             }
 
             // don't allow delete if only 1 file is available
-
-            if(projectData.input_files.length < 2){
+            if(projectData.input_files.length < 2 || projectData.input_files.length === selectedInputFiles.length){
                 toast.error("You need to have at least 1 file")
                 return;
             }
@@ -168,14 +167,18 @@ export const CreateProject = () => {
 
             try {
                 setLoadingInputFiles(true)
-                const res = await updateProjectFiles(updateProject, token)
-                const jsonResp = await res?.json()
 
-                if(jsonResp.error){
-                    toast.error(jsonResp.message);
-                    setLoadingInputFiles(false)
-                    return;
+                if(selectedProject){
+                    const res = await updateProjectFiles(updateProject, token)
+                    const jsonResp = await res?.json()
+    
+                    if(jsonResp.error){
+                        toast.error(jsonResp.message);
+                        setLoadingInputFiles(false)
+                        return;
+                    }
                 }
+
                 setLoadingInputFiles(false)
                 setProjectData((state:any) => ({...state, ...updateProject}))
 
@@ -197,7 +200,7 @@ export const CreateProject = () => {
 
              // don't allow delete if only 1 file is available
 
-             if(projectData.output_files.length < 2){
+             if(projectData.output_files.length < 2 || projectData.output_files.length === selectedOutputFiles.length){
                 toast.error("You need to have at least 1 file")
                 return;
             }
@@ -216,13 +219,15 @@ export const CreateProject = () => {
 
             try {
                 setLoadingOutputFiles(true)
-                const res = await updateProjectFiles(updateProject, token)
-                const jsonResp = await res?.json()
-
-                if(jsonResp.error){
-                    toast.error(jsonResp.message);
-                    setLoadingOutputFiles(false)
-                    return;
+                if(selectedProject){
+                    const res = await updateProjectFiles(updateProject, token)
+                    const jsonResp = await res?.json()
+    
+                    if(jsonResp.error){
+                        toast.error(jsonResp.message);
+                        setLoadingOutputFiles(false)
+                        return;
+                    }
                 }
 
                 setProjectData((state:any) => ({...state, ...updateProject}))
@@ -310,13 +315,23 @@ export const CreateProject = () => {
     const getFileCount = (aws:any, includeFileCount = true) => {
         const res:any = []
 
-        if(selectedProject && !Object.keys(aws).length){
-            res.push({
-                value : projectData.folder,
-                label : projectData.folder
-            })
-        }else{
-            Object.keys(aws)?.forEach((folder: string) => {
+        // if(selectedProject && !Object.keys(aws).length){
+        //     res.push({
+        //         value : projectData.folder,
+        //         label : projectData.folder
+        //     })
+        // }else{
+        //     Object.keys(aws)?.forEach((folder: string) => {
+        //         const obj:any = {}
+        //         obj.value = folder
+        //         obj.label = includeFileCount ? `${folder} (${awsDir[folder].length})` : folder
+    
+        //         res.push(obj)
+        //     })
+        // }
+
+        if(Object.keys(aws).length){
+                Object.keys(aws)?.forEach((folder: string) => {
                 const obj:any = {}
                 obj.value = folder
                 obj.label = includeFileCount ? `${folder} (${awsDir[folder].length})` : folder
@@ -332,12 +347,20 @@ export const CreateProject = () => {
     const getFileName = (folder:string) => {
         const res:any =[]
 
-        if(selectedProject && !Object.keys(awsDir).length){
-            res.push({
-                label : projectData.file,
-                value : projectData.file
-            })
-        }else{
+        // if(selectedProject && !Object.keys(awsDir).length){
+        //     res.push({
+        //         label : projectData.file,
+        //         value : projectData.file
+        //     })
+        // }else{
+        //     const files = awsDir[folder]
+        //     files?.forEach((file:string) => {
+        //         res.push({
+        //             label : file,
+        //             value : file
+        //         })
+        //     })
+        // }
             const files = awsDir[folder]
             files?.forEach((file:string) => {
                 res.push({
@@ -345,7 +368,6 @@ export const CreateProject = () => {
                     value : file
                 })
             })
-        }
 
         return res
     }
@@ -442,7 +464,9 @@ export const CreateProject = () => {
         description: jsonResp.message.project_description,
         file_type: jsonResp.message.file_type,
         file: jsonResp.message.file,
-        date_created: jsonResp.message.date_created
+        date_created: jsonResp.message.date_created,
+        input_files: jsonResp.message.input_files,
+        output_files: jsonResp.message.output_files
         
       }))
       navigate("/projects")
@@ -756,7 +780,7 @@ export const CreateProject = () => {
             <Modal opened={inputOpend} onClose={inputFilesFunctions.close} title="Add Input Files" centered size={"lg"}>
                 <div className="flex gap-4 mt-4">
                     <Select placeholder="Select Folder" value={inputFile.folder || null} options={getFileCount(awsDir)} changeFn={(e:any) => setInputFile((state:any) => ({...state, folder : e.target.value}))} />
-                    <Select placeholder="Select File" value={inputFile.file || null} options={getFileName(inputFile.folder || projectData.folder)} changeFn={(e:any) => setInputFile((state:any) => ({...state, file : e.target.value}))} />
+                    <Select placeholder="Select File" value={inputFile.file || null} options={getFileName(inputFile.folder)} changeFn={(e:any) => setInputFile((state:any) => ({...state, file : e.target.value}))} />
                     <Button variant="primary" size="sm" styleClasses="!h-fit" clickFn={fetchAwsDir}>
                         <div className={`${awsLoading ? "animate-spin" : ""}`}>
                             <IoMdRefresh color="white"/>
