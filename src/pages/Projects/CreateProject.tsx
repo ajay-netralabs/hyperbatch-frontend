@@ -559,7 +559,6 @@ export const CreateProject = () => {
             setProjectData((state:any) => (
                 {...state, output_files : [...state.output_files, outputFile]}
             ))
-            console.log("Project data output files: ", projectData.output_files)
             setOutputFile(INITIAL_OUTPUT_FILE)
             outputFilesFunctions.close()
         }
@@ -711,16 +710,15 @@ export const CreateProject = () => {
                                                 </div>
                                         ))}
                                         </>}
-
+                                        {/* <>{console.log("project data here", projectData.output_files)}</>
                                         {projectData.output_files.map((file:any, index:number) => (
                                                 <div className="table-data" key={index}>
                                                     <div style={{ width: "3%" }} className="table-data-container border-black border-r !py-[5px]  flex justify-center">
                                                         <Checkbox 
-                                                         checked={selectedInputFiles.includes(file.id)}
+                                                         checked={selectedOutputFiles.includes(file.id)}
                                                          onChange={(e) => handleSelectOutputFile(e.target.checked, file.id)}/>
                                                     </div>
                                                     <div  style={{ width: "25%" }} className="table-data-container border-black border-r ml-2 !py-[5px]">
-                                                        <>{console.log("file: ", file)}</>
                                                         <p>{file.file}</p>
                                                     </div>
 
@@ -733,7 +731,7 @@ export const CreateProject = () => {
                                                     <div  style={{ width: "25%" }} className="table-data-container ml-2">
                                                     </div>
                                                 </div>
-                                        ))}
+                                        ))} */}
                                     </div>
                                 </div>
                             </div>
