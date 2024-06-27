@@ -356,13 +356,13 @@ export const RunJob = () => {
                             return {
                                 ...state,
                                 refinedHyperBatchResp : editorTexts,
-                                final_code: message
+                                final_sql_code: message
                                 // refinedHyperBatchResp : getEditorData(refinedHyperbatchCode)
                             }
                         })
 
                          // update job data in redux store
-                         dispatch(updateOne({job_id : currentJob.job_id, final_code : message}))
+                         dispatch(updateOne({job_id : currentJob.job_id, final_sql_code : message}))
                     }
                     break; 
 
@@ -406,31 +406,32 @@ export const RunJob = () => {
         }
 
         if(step === 3){
-            console.log("hyperbatch")
-            return <CodeEditor value={currentJob.sql_code} onChange={(e) => setHyperbatchCode(e.target.value)}  language="sql" padding={15}
-                    style={{
-                        overflowY: "scroll",
-                        height: "40vh",
-                        backgroundColor: "black",
-                        borderRadius: "0px",
-                        fontFamily:
-                            "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+            return (
+                <div className="h-[40vh] overflow-auto">
+                    <CodeEditor value={currentJob.sql_code} onChange={(e) => setHyperbatchCode(e.target.value)}  language="sql" padding={15}
+                        style={{
+                            backgroundColor: "black",
+                            borderRadius: "0px",
+                            fontFamily:
+                                "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
                     }} />
+                </div>
+            )
 
-            // return <TextEditor editorState={hyperbatchCode} setEditorState={setHyperbatchCode} styleClasses="h-[40vh]"/>
         }
 
         if(step >= 4){
-            // return <TextEditor editorState={refinedHyperbatchCode} setEditorState={setRefinedHyperbatchCode} styleClasses="h-[40vh]"/>
-            return <CodeEditor value={currentJob.refined_sql_code} onChange={(e) => setRefinedHyperbatchCode(e.target.value)}  language="sql" padding={15}
-            style={{
-                overflowY: "scroll",
-                height: "40vh",
-                backgroundColor: "black",
-                borderRadius: "0px",
-                fontFamily:
-                    "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-            }} />
+            return (
+                <div className="h-[40vh] overflow-auto">
+                    <CodeEditor value={currentJob.refined_sql_code} onChange={(e) => setRefinedHyperbatchCode(e.target.value)}  language="sql" padding={15}
+                        style={{
+                            backgroundColor: "black",
+                            borderRadius: "0px",
+                            fontFamily:
+                                "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+                    }} />
+            </div>
+            )
         }
 
         // if(step === 3){
@@ -441,15 +442,17 @@ export const RunJob = () => {
 
     const getFinalOutputEditor = () => {
         if(step >= 5){
-            return <CodeEditor value={currentJob.final_code} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
-            style={{
-                overflowY: "scroll",
-                height: "40vh",
-                backgroundColor: "black",
-                borderRadius: "0px",
-                fontFamily:
-                    "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-            }} />
+            return (
+                <div className="h-[40vh] overflow-auto">
+                    <CodeEditor value={currentJob.final_sql_code} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
+                        style={{
+                            backgroundColor: "black",
+                            borderRadius: "0px",
+                            fontFamily:
+                                "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+                    }} />
+            </div>
+            )
         }else{
             <div className="h-[40vh] flex justify-around items-center">&nbsp;</div>
         }
@@ -457,15 +460,18 @@ export const RunJob = () => {
 
 
     const getAutoFixEditor = () => {
-        return <CodeEditor value={finalCode} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
-        style={{
-            overflowY: "scroll",
-            height: "40vh",
-            backgroundColor: "black",
-            borderRadius: "0px",
-            fontFamily:
-                "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-        }} />
+        return (
+            <div className="h-[40vh] overflow-auto">
+                <CodeEditor value={finalCode} onChange={(e) => setFinalCode(e.target.value)}  language="sql" padding={15}
+                style={{
+                    backgroundColor: "black",
+                    borderRadius: "0px",
+                    fontFamily:
+                        "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+                }} />
+            </div>
+        )
+        
     }
 
     const downloadFile = () => {
@@ -546,7 +552,7 @@ export const RunJob = () => {
 
 
     const [feedback, setFeedback] = useState<string>("")
-    const [suggestion, setSuggestion] = useState<string>("")
+    const [suggestion, setSuggestion] = useState(EditorState.createEmpty())
 
     const [loadingSuggestion, setLoadingSuggestion] = useState<boolean>(false)
     const [disableAutoFix, setDisableAutoFix] = useState<boolean>(false)
@@ -557,7 +563,8 @@ export const RunJob = () => {
         try{
 
             setLoadingAutoFix(true)
-            const res = await autoFix(finalCode, currentJob.job_id, feedback, suggestion, token)
+            const texts = getTextFormat(suggestion)
+            const res = await autoFix(finalCode, currentJob.job_id, feedback, texts, token)
             
             if(!res?.ok){
                 toast.error(res?.statusText)
@@ -611,7 +618,10 @@ export const RunJob = () => {
             }
 
             setLoadingSuggestion(false)
-            setSuggestion(jsonResp.message)
+            // setSuggestion(jsonResp.message)
+            setSuggestion(EditorState.createWithContent(
+                ContentState.createFromText(jsonResp.message)
+              ))
             
             const NO_ISSUE_TEXT = "no problems found"
             if(jsonResp.message.includes(NO_ISSUE_TEXT)){
@@ -716,20 +726,23 @@ export const RunJob = () => {
                                     <div className="w-[30%] flex flex-col gap-2 ">
                                         <div className="border border-black bg-base-100">
                                             <div className="border-b border-black p-2">STATUS :</div>
-                                            <div className="h-[40vh] flex flex-col justify-between gap-2">
-                                                {loadingSuggestion ? (
-                                                    <div className="h-[40vh] mt-2 flex justify-around items-center">
-                                                        <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                                <div className="h-[40vh] flex flex-col justify-between">
+                                                    <div className="flex flex-col justify-between gap-2">
+                                                        {loadingSuggestion ? (
+                                                            <div className="mt-4 flex justify-around items-center">
+                                                                <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                                            </div>
+                                                        ) : (
+                                                            // <div className="p-2 overflow-y-scroll">ajay</div>
+                                                            <TextEditor editorState={suggestion}  setEditorState={setSuggestion} editorStyle={{height: "calc(40vh - 90px)"}}/>
+                                                        )}
                                                     </div>
-                                                ) : (
-                                                    <div className="p-2 overflow-y-scroll">{suggestion}</div>
-                                                )}
-                                                <div className="flex flex-col gap-1">
-                                                    <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion || disableAutoFix ? "btn-disabled" : ""}`} clickFn={modalFunctions.open}>Accept Recommendations</Button>
-                                                    <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion ? "btn-disabled" : ""}`} clickFn={handleSelfAssesment}>Suggest Fixes</Button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion || disableAutoFix ? "btn-disabled" : ""}`} clickFn={modalFunctions.open}>Accept Recommendations</Button>
+                                                        <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion ? "btn-disabled" : ""}`} clickFn={handleSelfAssesment}>Suggest Fixes</Button>
+                                                    </div>
+                                                    </div>
+                                             </div>
                                     </div>
                                 </>
                             )}
@@ -781,8 +794,8 @@ export const RunJob = () => {
                         ) : <>{getAutoFixEditor()}</>}
                     </div>
                     
+                    <TextEditor editorState={suggestion}  setEditorState={setSuggestion} styleClasses="h-[20vh]"/>
                     <InputText placeholder="Feedback" styleClass="input-sm" value={feedback} changeFn={(e:any) => setFeedback(e.target.value)} />
-                    <InputText placeholder="Suggestions" styleClass="input-sm" value={suggestion} changeFn={(e:any) => setSuggestion(e.target.value)} />
                    <div className="flex justify-end gap-2">
                         <Button size="sm" variant="accent" styleClasses={`text-white rounded-none ${loadingAutoFix ? "btn-disabled" : ""}`} clickFn={handleAutoFix}>Generate</Button>
                         <Button size="sm" variant="accent" styleClasses={`text-white rounded-none`} clickFn={modalFunctions.close}>Close</Button>
