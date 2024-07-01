@@ -6,11 +6,12 @@ interface props {
     size? : string, // button size,
     styleClasses? : string,
     clickFn: any,
-    children: React.ReactNode
+    children: React.ReactNode,
+    title : string
 }
 
-export const Button = ({ variant="", outline, size="md" , styleClasses, clickFn ,children }: props) => {
+export const Button = ({ variant="", outline, size="md" , styleClasses, clickFn ,children, title="" }: props) => {
     return (
-        <button className={`btn btn-${variant} btn-${outline} btn-${size} ${styleClasses}`} onClick={clickFn}>{children}</button>
+        <button title={title} className={`btn btn-${variant} btn-${outline} btn-${size} ${styleClasses}`} onClick={clickFn}>{children}</button>
     )
 }

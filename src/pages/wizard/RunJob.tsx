@@ -7,7 +7,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams  } from "react-router-dom";
-
+import { FcOk } from "react-icons/fc";
+import { FcCheckmark } from "react-icons/fc";
+import { FcCancel } from "react-icons/fc";
 import { TextEditor } from "../../components";
 import { EditorState, ContentState, convertToRaw } from "draft-js";
 import { Button, InputText } from "../../components/form";
@@ -49,6 +51,9 @@ export const RunJob = () => {
         }else return 0
     })
 
+    const [isSave,  setIsSave] = useState<boolean>(false)
+    const [isManualFix, setIsManualFix] = useState<boolean>(false);
+    const [isAutoFix, setIsAutoFix] = useState<boolean>(false);
     const [loadingPage, setLoadingPage] = useState(false)
 
     const [loadingApiRequest, setLoadingApiRequest] = useState(false)
@@ -414,7 +419,7 @@ export const RunJob = () => {
                             borderRadius: "0px",
                             fontFamily:
                                 "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-                    }} />
+                    }} disabled/>
                 </div>
             )
 
@@ -429,7 +434,8 @@ export const RunJob = () => {
                             borderRadius: "0px",
                             fontFamily:
                                 "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-                    }} />
+                    }} 
+                    disabled/>
             </div>
             )
         }
@@ -450,7 +456,7 @@ export const RunJob = () => {
                             borderRadius: "0px",
                             fontFamily:
                                 "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-                    }} />
+                    }} disabled/>
             </div>
             )
         }else{
@@ -468,7 +474,7 @@ export const RunJob = () => {
                     borderRadius: "0px",
                     fontFamily:
                         "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-                }} />
+                }} disabled={isAutoFix}/>
             </div>
         )
         
@@ -553,9 +559,9 @@ export const RunJob = () => {
 
     const [feedback, setFeedback] = useState<string>("")
     const [suggestion, setSuggestion] = useState(EditorState.createEmpty())
-
+    const [isSuggesstion,  setIsSuggestion] = useState<boolean>(false)
     const [loadingSuggestion, setLoadingSuggestion] = useState<boolean>(false)
-    const [disableAutoFix, setDisableAutoFix] = useState<boolean>(false)
+    const [disableAutoFix, setDisableAutoFix] = useState<boolean>(true)
 
     const [loadingAutoFix, setLoadingAutoFix] = useState<boolean>(false)
 
@@ -622,10 +628,15 @@ export const RunJob = () => {
             setSuggestion(EditorState.createWithContent(
                 ContentState.createFromText(jsonResp.message)
               ))
+
+            setIsSuggestion(true);
             
             const NO_ISSUE_TEXT = "no problems found"
             if(jsonResp.message.includes(NO_ISSUE_TEXT)){
                 setDisableAutoFix(true)
+                setIsSuggestion(false);
+            }else{
+                setDisableAutoFix(false);
             }
 
             // disable autofix if suggetion returns no problems found 
@@ -636,6 +647,21 @@ export const RunJob = () => {
             toast.error("Something went wrong")
         }
     }
+
+    const handleManualFix = () => {
+        setIsManualFix(true);
+        setIsAutoFix(false);
+        console.log("Manual true: ", isManualFix)
+        modalFunctions.open();
+      };
+
+    const handleAutoFixOpen = () => {
+        setIsManualFix(false);
+        setIsAutoFix(true);
+        console.log("Auto true: ", isAutoFix)
+        modalFunctions.open();
+      };  
+
 
 
 
@@ -690,8 +716,18 @@ export const RunJob = () => {
                                         <div className="border-b border-black p-2">Input Files :</div>
                                         <div className="">
                                             {loadingApiRequest ? (
-                                                    <div className="h-[40vh] mt-2 flex justify-around items-center">
-                                                        <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin"/>
+                                                    <div className="h-[40vh] mt-2 flex flex-col items-center justify-center">
+                                                         <div className="flex items-center justify-center">
+                                                            <AiOutlineLoading3Quarters color="#036ca1" fontSize={"40px"} className="animate-spin" />
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            {step === 1 && <p>Generating Business Logic</p>}
+                                                            {step === 2 && <p>Generating Program Summary</p>}
+                                                            {step === 3 && <p>Generating HyperBatch Code</p>}
+                                                            {step === 4 && <p>Generating Refined HyperBatch Code</p>}
+                                                            {step === 5 && <p>Generating Final HyperBatch Code</p>}
+                                                        </div>
+
                                                     </div>
                                                 ) :  (
                                                     <>
@@ -738,8 +774,8 @@ export const RunJob = () => {
                                                         )}
                                                     </div>
                                                     <div className="flex flex-col gap-1">
-                                                        <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion || disableAutoFix ? "btn-disabled" : ""}`} clickFn={modalFunctions.open}>Accept Recommendations</Button>
-                                                        <Button size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion ? "btn-disabled" : ""}`} clickFn={handleSelfAssesment}>Suggest Fixes</Button>
+                                                        <Button title="" size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion ? "btn-disabled" : ""}`} clickFn={handleManualFix}>Manual Fix</Button>
+                                                        <Button title="" size="sm" variant="accent" styleClasses={`rounded-none text-white ${loadingSuggestion ? "btn-disabled" : ""}`} clickFn={handleAutoFixOpen}>Auto Fix</Button>
                                                     </div>
                                                     </div>
                                              </div>
@@ -766,17 +802,17 @@ export const RunJob = () => {
                         {/* buttons */}
                         <div className="mt-5 flex justify-between">
                             
-                                <Button clickFn={decrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MIN_STEP + 1 ? "btn-disabled" : ""}`}>previous</Button> 
+                                <Button clickFn={decrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MIN_STEP + 1 ? "btn-disabled" : ""}`} title="">previous</Button> 
 
                             <div className="flex gap-2">
                             
-                                <Button clickFn={downloadFile} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Download</Button>
+                                <Button title="" clickFn={downloadFile} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Download</Button>
                             
                             {step < MAX_STEP ? (
-                                <Button clickFn={incrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MAX_STEP ? "btn-disabled" : ""}`}>{step === 0 ? "Run Job" : "Next"}</Button>
+                                <Button title="" clickFn={incrementStep} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest || step === MAX_STEP ? "btn-disabled" : ""}`}>{step === 0 ? "Run Job" : "Next"}</Button>
 
                             ) : (
-                                <Button clickFn={() => {handleSave()}} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Save</Button>
+                                <Button title="" clickFn={() => {handleSave()}} styleClasses={`!text-xs btn-accent text-white !rounded-sm  ${loadingApiRequest ? "btn-disabled" : ""}`}>Save</Button>
                             )}
                             </div>
                         </div>
@@ -793,13 +829,26 @@ export const RunJob = () => {
                             </div>
                         ) : <>{getAutoFixEditor()}</>}
                     </div>
-                    
-                    <TextEditor editorState={suggestion}  setEditorState={setSuggestion} styleClasses="h-[20vh]"/>
+                    {isAutoFix && <>
+                        <TextEditor editorState={suggestion}  setEditorState={setSuggestion} styleClasses="h-[20vh]"/>
                     <InputText placeholder="Feedback" styleClass="input-sm" value={feedback} changeFn={(e:any) => setFeedback(e.target.value)} />
                    <div className="flex justify-end gap-2">
-                        <Button size="sm" variant="accent" styleClasses={`text-white rounded-none ${loadingAutoFix ? "btn-disabled" : ""}`} clickFn={handleAutoFix}>Generate</Button>
-                        <Button size="sm" variant="accent" styleClasses={`text-white rounded-none`} clickFn={modalFunctions.close}>Close</Button>
+                   <Button title="" size="sm" variant="accent" styleClasses={`text-white rounded-none ${loadingAutoFix ? "btn-disabled" : ""}`} clickFn={handleSelfAssesment}>Suggest Fixes</Button>
+                        <Button title="Accept Suggestions" size="sm" variant="accent" styleClasses={`text-white rounded-none ${loadingAutoFix || disableAutoFix ? "btn-disabled" : ""}`} clickFn={handleAutoFix}><FcCheckmark/></Button>
+                        <Button title="Reject Suggestions" size="sm" variant="accent" styleClasses={`text-white rounded-none ${loadingAutoFix || disableAutoFix ? "btn-disabled" : ""}`} clickFn={""}><FcCancel/></Button>
+                        <Button title="" size="sm" variant="accent" styleClasses={`text-white rounded-none ${loadingAutoFix || !isSave ? "btn-disabled" : ""}`} clickFn={console.log("saved")}>Save</Button>
                    </div>
+                    </>}
+
+                    {
+                        isManualFix && <>
+                        <div className="flex justify-end gap-2">
+                        <Button title="" size="sm" variant="accent" styleClasses={`text-white rounded-none ${loadingAutoFix ? "btn-disabled" : ""}`} clickFn={console.log("saved")}>Save</Button>
+                        </div>
+                        
+                        </>
+                    }
+                    
                 </div>
             </Modal>
 
